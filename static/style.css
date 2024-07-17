@@ -1,0 +1,425 @@
+:root {
+    --bg-colour1: gold;
+    --bg-colour2: #D788D7;
+    --bg-colour3: #5D54A3;
+    --nav-bg-colour: #2A3D67;
+    --nav-hover-bg-colour: #9D65CA;
+    --nav-fg-colour: white;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Cambria, sans-serif;
+}
+
+body {
+    background-image: radial-gradient(var(--bg-colour1), var(--bg-colour2), var(--bg-colour3));
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+#body-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* HEADER */
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--nav-bg-colour);
+    padding: .5em;
+    user-select: none;
+}
+
+.nav-left a,
+.nav-right a,
+.dropdown-menu a {
+    color: var(--nav-fg-colour);
+    padding: .5em;
+    text-decoration: none;
+    display: block;
+    border-radius: .2em;
+}
+
+.nav-left a:hover,
+.nav-right a:hover,
+.dropdown-menu a:hover,
+#footer-email:hover {
+    background-color: var(--nav-hover-bg-colour);
+}
+
+/* circle { */
+/*     stroke: none; */
+/*     fill: red; */
+/* } */
+
+#logo_svg {
+    transform: scale(1.5);
+    transform-origin: 0 35%;
+}
+
+/* #logo_whole { */
+/*     fill: url(#logo-gradient) #D788D7; */
+/* } */
+
+/* #logo_c circle { */
+/*     fill: var(--bg-colour1); */
+/* } */
+/*  */
+/* #logo_m circle { */
+/*     fill: var(--bg-colour2); */
+/* } */
+
+.nav-right {
+    display: flex;
+    align-items: center;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--nav-bg-colour);
+    min-width: 10em;
+    box-shadow: 0 .5em 1em 0 rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 0 0 .2em .2em;
+}
+
+.dropdown-content a {
+    color: var(--nav-fg-colour);
+    padding: .75em 1em;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: var(--nav-hover-bg-colour);
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+header h1 {
+    text-align: center;
+}
+
+/* MAIN */
+
+main {
+    position: static;
+    flex-grow: 1;
+}
+
+div.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+    padding: .5em 0;
+    background-color: white;
+    max-width: 66em;
+}
+
+section {
+    width: 100%;
+    margin: 0 0 .5em 0;
+    padding: 1em 1.5em;
+}
+
+section p {
+    margin-top: 1em;
+}
+
+section#todo {
+    font-family: "Schoolbell", cursive;
+    background-color: #F8ECC5;
+    max-width: 24em;
+}
+
+section#todo * {
+    font-family: "Schoolbell", cursive;
+}
+
+div.project-window:not(.maximised):not(.minimised) {
+    height: 60vh;
+    min-height: 30em;
+}
+
+div.project-title-bar {
+    display: flex;
+    padding: 0 .25em;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    color: #ECF0C1;
+    border-bottom: 1px solid #54575A;
+    border-radius: .1em .1em 0 0;
+    background-color: #2A2E32;
+    user-select: none;
+}
+
+div.project-title-bar > label {
+    display: inline-block;
+}
+
+.project-title-bar h2 {
+    font-size: 20px;
+    font-weight: normal;
+    text-align: center;
+}
+
+img.project-window-icon {
+    margin-bottom: 1px;
+    pointer-events: none;
+}
+
+span.project-window-controls {
+    margin-top: 3px;
+}
+
+label.project-minimise-btn, label.project-maximise-btn, img.project-window-close {
+    cursor: pointer;
+}
+
+.project-window-minimise:checked + .project-minimise-btn img {
+    content: url("/static/img/show_btn.png");
+    /* transform: scaleY(-1); */
+}
+
+.project-window-maximise:checked + .project-maximise-btn img {
+    content: url("/static/img/restore_btn.png");
+}
+
+div.project-content {
+    transform-origin: top;
+    visibility: visible;
+    transform: scaleY(1);
+    max-height: auto;
+    transition: visibility .25s, transform .25s, max-height .25s;
+}
+
+div.project-content.minimised {
+    visibility: hidden;
+    transform: scaleY(0);
+    max-height: 0;
+}
+
+.project-section p {
+    margin: 0 .5em;
+    font-family: monospace, monospace;
+}
+
+/* FOOTER */
+
+footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--nav-fg-colour);
+    background-color: var(--nav-bg-colour);
+    /* width: 100%; */
+    padding: .5em 0;
+    /* text-align: right; */
+}
+
+footer p, footer span {
+    display: inline-block;
+}
+
+footer p {
+    padding: .5em 1em .5em 0;
+    text-align: right;
+}
+
+#footer-contacts, #footer-contacts p {
+    padding-left: .5em;
+}
+
+#footer-email {
+    border-radius: .2em;
+    color: var(--nav-fg-colour);
+    text-decoration: none;
+    padding: .5em;
+}
+
+footer span * {
+    padding: 0;
+}
+
+/* PROJECTS */
+
+/*  [BRICK ARCH] */
+
+div.project-window {
+    color: black;
+    background-color: white;
+    margin: .5em .5em;
+    border: 1px solid grey;
+    overflow: hidden;
+    border: 1px solid #54575A;
+    padding: 0;
+    border-radius: .2em; /* .2em 0 0; */
+    box-shadow: 0 .25em .5em 0 rgba(0,0,0,0.2);
+}
+
+div.project-title-bar label button {
+    width: 16px;
+    height: 16px;
+    border-width: 0;
+    border-radius: 8px;
+}
+
+label.project-window-minimise button {
+    background-image: url("/static/img/minimise_btn.png");
+    background-attachment: fixed;
+}
+
+div.project-window.maximised {
+    z-index: 9999;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    margin: auto 0;
+    top:0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+form#arch-parameters-form {
+    width: 100%;
+    padding: 0 .2em;
+    background-color: lightgrey;
+    border-bottom: 1px solid black;
+}
+
+span.arch-toolbar-item {
+    display: inline-block;
+}
+
+span.arch-toolbar-item input {
+    max-width: 5em;
+}
+
+span.arch-toolbar-item-with-select input[type=number] {
+    max-width: 4em;
+    text-align: right;
+}
+
+span.arch-toolbar-item.hidden {
+    display: none;
+}
+
+div.canvas-container {
+    margin-left: 0;
+    position: relative;
+    overflow: hidden;
+    transform-origin: top left;
+}
+
+canvas#arch-drawing-area {
+    display: block;
+    z-index: 1;
+    transform: scaleY(-1);
+}
+
+div#arch-axes, div#arch-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 0.5;
+}
+
+div.axis {
+    position: absolute;
+    background-color: lightgrey;
+    font-size: .75em;
+    pointer-events: none;
+}
+
+div.axis.x {
+    height: 2px;
+    text-align: center;
+}
+
+div.axis.y {
+    width: 2px;
+    text-align: right;
+}
+
+div.grid {
+    position: absolute;
+    font-size: .75em;
+    pointer-events: none;
+}
+
+div.grid.x {
+    height: 1px;
+    background-image: repeating-linear-gradient(
+    90deg,
+    lightgrey,
+    lightgrey 1px,
+    transparent 2px,
+    transparent 5px
+    );
+    text-align: center;
+}
+
+div.grid.y {
+    width: 1px;
+    /* background-color: lightgrey; */
+    background-image: repeating-linear-gradient(
+    0deg,
+    lightgrey,
+    lightgrey 1px,
+    transparent 2px,
+    transparent 5px
+    );
+    text-align: right;
+}
+
+div.axis-label {
+    position: absolute;
+    /* font-size: 10px; */
+    background-color: white;
+}
+
+div#axes-toggle-box {
+    position: absolute;
+    border: 1px solid black;
+    padding: .5em;
+    background-color: white;
+    right: 0;
+    bottom: 0;
+    font-size: 10px;
+    text-align: right;
+    padding: 2px;
+    transform-origin: bottom right;
+    user-select: none;
+}
+
+input#axes-visibility-chk, input#grid-visibility-chk {
+    height: 11px;
+}
+
+/*  [/BRICK ARCH] */
+
+/* [/PROJECTS] */
+
