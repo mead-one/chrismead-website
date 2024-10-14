@@ -1,13 +1,5 @@
 ---
 title: "Projects"
 weight: 2
+layout: "projects"
 ---
-
-<div class="projects-list">
-    {{ range .Pages.ByDate }}
-        <section id="{{ .Params.id }}">
-            <h2><a href={{ .RelPermalink }}">{{ .Title }}</a></h2>
-            {{ .Content }}</div>
-        </section>
-    {{ end }}
-</div>

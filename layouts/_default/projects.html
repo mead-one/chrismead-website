@@ -1,0 +1,17 @@
+{{ define "main" }}
+<h1>{{ .Title }}</h1>
+{{ range .Pages.ByDate }}
+    {{ if and .IsPage (not .Params.hidden) }}
+        <section id="{{ .Params.id }}">
+            <h2>{{ .Title }}</h2>
+            <small>Main page at: <a href="{{ .RelPermalink }}">{{ .Title }}</a></small>
+            {{ .Content }}
+        </section>
+        {{ $script := resources.Get (printf "js/%s.js" .Params.id) }}
+        {{ if $script }}
+            {{ $minifiedScript := $script | minify | fingerprint }}
+            <script src="{{ $minifiedScript.Permalink }}"></script>
+        {{ end }}
+    {{ end }}
+{{ end }}
+{{ end }}
