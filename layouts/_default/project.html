@@ -1,0 +1,11 @@
+{{ define "main" }}
+<section id="{{ .Params.id }}">
+<h1>{{ .Title }}</h1>
+{{ .Content }}
+{{ $script := resources.Get (printf "js/%s.js" .Params.id) }}
+{{ if $script }}
+    {{ $minifiedScript := $script | minify | fingerprint }}
+    <script src="{{ $minifiedScript.Permalink }}"></script>
+{{ end }}
+</section>
+{{ end }}

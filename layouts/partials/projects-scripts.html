@@ -1,2 +1,0 @@
-{{ $projects_script := resources.Get "js/projects.js" | minify | fingerprint }}
-<script src="{{ $projects_script.Permalink }}"></script>
