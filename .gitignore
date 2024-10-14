@@ -1,3 +1,5 @@
 /export
 /__pycache__
 .hugo_build.lock
+/public/*
+/assets/js/*
