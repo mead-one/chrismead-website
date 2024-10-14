@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Homepage on ChrisMead.co.uk</title>
+    <link>http://localhost:1313/</link>
+    <description>Recent content in Homepage on ChrisMead.co.uk</description>
+    <generator>Hugo</generator>
+    <language>en-gb</language>
+    <lastBuildDate>Mon, 14 Oct 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>About Me</title>
+      <link>http://localhost:1313/about/</link>
+      <pubDate>Mon, 14 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/about/</guid>
+      <description>About Blah blah blah.&#xA;Blah Blah Blah Blah Blah Blah </description>
+    </item>
+    <item>
+      <title>My Workflow</title>
+      <link>http://localhost:1313/workflow/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/workflow/</guid>
+      <description>My Workflow </description>
+    </item>
+    <item>
+      <title>Projects</title>
+      <link>http://localhost:1313/projects/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/projects/</guid>
+      <description>Brick Arch While working at H.G. Matthews, a brickyard in Southeast England, I was tasked with automating the process of creating architectural drawings of brick arches for use in previews for customers and templates printed on plastic sheets for use in the manufacturing of brick arches. I am developing a demonstration of this technology here, and aim to surpass even the capabilities of the original CAD program - check the to-do list to see my plans and progress in this endeavour.</description>
+    </item>
+  </channel>
+</rss>

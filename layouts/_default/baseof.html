@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ "favicon.ico" | resources.Get | fingerprint }}" type="image/x-icon">
+    {{ $style := resources.Get "css/style.css" | minify | fingerprint }}
+    <link rel="stylesheet" href="{{ $style.Permalink }}">
+    <title>{{ .Title }} | ChrisMead.co.uk</title>
+</head>
+<body>
+    <div id="body-wrapper">
+        {{ partial "header.html" . }}
+        <main>
+            <div class="content">
+                {{ block "main" . }}{{ end }}
+            </div>
+        </main>
+        {{ partial "footer.html" . }}
+    </div>
+</body>
+</html>
+

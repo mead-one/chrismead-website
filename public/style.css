@@ -195,12 +195,12 @@ label.project-minimise-btn, label.project-maximise-btn, img.project-window-close
 }
 
 .project-window-minimise:checked + .project-minimise-btn img {
-    content: url("/static/img/show_btn.png");
+    content: url("/img/show_btn.png");
     /* transform: scaleY(-1); */
 }
 
 .project-window-maximise:checked + .project-maximise-btn img {
-    content: url("/static/img/restore_btn.png");
+    content: url("/img/restore_btn.png");
 }
 
 div.project-content {

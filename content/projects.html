@@ -1,25 +1,26 @@
-{% extends 'base.html' %}
+---
+title: "Projects"
+description: "A portfolio of interactive project demos"
+layout: "single"
+---
 
-{% block title %}Projects{% endblock %}
-
-{% block content %}
 <section id="brick-arch">
     <h2>Brick Arch</h2>
     <p>While working at H.G. Matthews, a brickyard in Southeast England, I was tasked with automating the process of creating architectural drawings of brick arches for use in previews for customers and templates printed on plastic sheets for use in the manufacturing of brick arches. I am developing a demonstration of this technology here, and aim to surpass even the capabilities of the original CAD program - check <a href="/#todo">the to-do list</a> to see my plans and progress in this endeavour.</p>
     <div id="arch" class="project-window">
         <div class="project-title-bar">
-            <img src="/static/img/brick_arch_icon.png" class="project-window-icon" height="18">
+            <img src="/img/brick_arch_icon.png" class="project-window-icon" height="18">
             <h2>Brick Arch</h2>
             <span class="project-window-controls">
                 <input type="checkbox" id="brick-arch-minimise" class="project-window-minimise" hidden>
                 <label for="brick-arch-minimise" class="project-minimise-btn">
-                    <img src="/static/img/minimise_btn.png" width="16" height="16">
+                    <img src="/img/minimise_btn.png" width="16" height="16">
                 </label>
                 <input type="checkbox" id="brick-arch-maximise" class="project-window-maximise" hidden>
                 <label for="brick-arch-maximise" class="project-maximise-btn">
-                    <img src="/static/img/maximise_btn.png" width="16" height="16">
+                    <img src="/img/maximise_btn.png" width="16" height="16">
                 </label>
-                <img src="/static/img/close_btn.png" class="project-window-close" width="16" height="16"></button>
+                <img src="/img/close_btn.png" class="project-window-close" width="16" height="16"></button>
             </span>
         </div>
         <div id="brick-arch-content" class="project-content">
@@ -91,5 +92,3 @@
         </div>
     </div>
 </section>
-<script src="/static/projects.js"></script>
-{% endblock %}
