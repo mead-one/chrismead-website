@@ -16,11 +16,11 @@ interface ArchDrawingParameters {
     skewLength: number;
     brickCount: number;
     baseBrickWidth: number;
-    baseBrickAngle: number;
-    baseJointAngle: number;
+    baseBrickAngle: number | null;
+    baseJointAngle: number | null;
     topBrickWidth: number;
-    topBrickAngle: number;
-    topJointAngle: number;
+    topBrickAngle: number | null;
+    topJointAngle: number | null;
     baseRise: number;
     baseRadius: number | null;
     baseFullAngle: number | null;
@@ -30,9 +30,9 @@ interface ArchDrawingParameters {
 }
 
 interface FlatArchDrawingParameters extends ArchDrawingParameters {
-    baseOrigin: [number, number];
+    baseOrigin: [number, number] | null;
     topRise: number;
-    topOrigin: [number, number];
+    topOrigin: [number, number] | null;
 }
 
 interface RadialArchDrawingParameters extends ArchDrawingParameters {
@@ -221,11 +221,17 @@ class Arch extends Project {
             maxHeight / this.canvas.height
         );
 
-        this.canvas.parentElement.style.width = `${this.canvas.width}px`;
-        this.canvas.parentElement.style.height = `${this.canvas.height}px`;
-        this.canvas.parentElement.style.transform = `scale(${scale})`;
-        this.canvas.parentElement.style.transformOrigin = "top left";
-        this.container.querySelector("#axes-toggle-box").style.transform = `scale(${1 / scale})`;
+        if (this.canvas.parentElement != null) {
+            this.canvas.parentElement.style.width = `${this.canvas.width}px`;
+            this.canvas.parentElement.style.height = `${this.canvas.height}px`;
+            this.canvas.parentElement.style.transform = `scale(${scale})`;
+            this.canvas.parentElement.style.transformOrigin = "top left";
+        }
+
+        let axesToggleBox = this.container.querySelector("#axes-toggle-box");
+        if (axesToggleBox instanceof HTMLDivElement) {
+            axesToggleBox.style.transform = `scale(${1 / scale})`;
+        }
     }
 
     // Utility methods
@@ -313,57 +319,65 @@ class FlatArch extends Arch {
         let fullLength = opening + 2 * skewLength;
         let baseRise = parseInt(this.toolbar.elements["base-rise"].value);
 
-        let baseRadius, baseOrigin, baseHalfAngle;
+        let baseRadius: number | null, baseOrigin: [number, number] | null, baseHalfAngle: number | null;
         if (baseRise > 0) {
             baseRadius = ((((opening / 2) ** 2) / baseRise) + baseRise) / 2;
             baseOrigin = [fullLength / 2, baseRise - baseRadius];
             baseHalfAngle = Math.atan((opening / 2) / (baseRadius - baseRise));
+        } else {
+            baseRadius = baseOrigin = baseHalfAngle = null;
         }
 
         let topRise = parseInt(this.toolbar.elements["top-rise"].value);
 
-        let topRadius, topOrigin, topHalfAngle;
+        let topRadius: number | null, topOrigin: [number, number] | null, topHalfAngle: number | null;
         if (topRise > 0) {
             topRadius = ((((fullLength / 2) ** 2) / topRise) + topRise) / 2;
             topOrigin = [fullLength / 2, height + topRise - topRadius];
             topHalfAngle = Math.atan((fullLength / 2) / (topRadius - topRise));
+        } else {
+            topRadius = topOrigin = topHalfAngle = null;
         }
 
         let brickDivisionValue = parseInt(this.toolbar.elements["brick-width-or-count"].value);
         let brickDivisionMethod = this.toolbar.elements["brick-division-select"].value;
         let jointSize = parseInt(this.toolbar.elements["joint-size"].value);
         
-        let brickCount, topBrickAngle, topBrickWidth, topJointAngle, topFullArcLength, topJointArcLength;
+        let brickCount: number, topBrickAngle: number | null, topBrickWidth: number, topJointAngle: number | null,
+            topFullArcLength: number | null, topJointArcLength: number | null;
         if (brickDivisionMethod === "width") {
-            if (topRise <= 0) {
+            if (topRise <= 0 || !topRadius) {
                 brickCount = this.countBricks(fullLength, brickDivisionValue, jointSize, false);
-                if (this.type !== "bullseye" && brickCount % 2 === 0) {
+                if (brickCount % 2 === 0) {
                     brickCount++;
                 }
                 let justBricks = fullLength - (jointSize * (brickCount - 1));
                 topBrickWidth = justBricks / brickCount;
-                topBrickAngle = topJointAngle = "n/a";
+                topBrickAngle = topJointAngle = topFullArcLength = topJointArcLength = null;
             } else {
                 topFullArcLength = this.chordLengthToArcLength(fullLength, topRadius);
                 topJointArcLength = this.chordLengthToArcLength(jointSize, topRadius);
                 let maxBrickArcLength = this.tangentLengthToArcLength(brickDivisionValue, topRadius);
                 brickCount = this.countBricks(topFullArcLength, maxBrickArcLength, topJointArcLength, false);
-                if (this.type !== "bullseye" && brickCount % 2 === 0) {
+                if (brickCount % 2 === 0) {
                     brickCount++;
                 }
             }
         } else {
             brickCount = brickDivisionValue;
-            if (brickDivisionMethod === "count") {
+            if (brickDivisionMethod === "count" && topRadius) {
                 topFullArcLength = this.chordLengthToArcLength(fullLength, topRadius);
                 topJointArcLength = this.chordLengthToArcLength(jointSize, topRadius);
+            } else {
+                topFullArcLength = topJointArcLength = null;
             }
         }
 
         // Calculate top brick size
-        if (topRise <= 0) {
+        if (topRise <= 0 || !topFullArcLength || !topJointArcLength || !topRadius) {
             let topJustBricks = fullLength - (brickCount - 1) * jointSize;
             topBrickWidth = topJustBricks / brickCount;
+            topBrickAngle = topJointAngle = null;
         } else {
             let justBricksArcLength = topFullArcLength - (topJointArcLength * (brickCount - 1));
             let topBrickArcLength = justBricksArcLength / brickCount;
@@ -373,10 +387,13 @@ class FlatArch extends Arch {
         }
 
         // Calculate base brick size
-        let baseFullArcLength, baseJointArcLength, baseBrickAngle, baseBrickWidth, baseJointAngle;
-        if (baseRise <= 0) {
+        let baseFullArcLength: number, baseJointArcLength: number, baseBrickAngle: number | null,
+            baseBrickWidth: number, baseJointAngle: number | null;
+        if (baseRise <= 0 || baseRadius == null) {
             let baseJustBricks = opening - (brickCount - 1) * jointSize;
             baseBrickWidth = baseJustBricks / brickCount;
+            baseBrickAngle = null;
+            baseJointAngle = null;
         } else {
             baseFullArcLength = this.chordLengthToArcLength(opening, baseRadius);
             baseJointArcLength = this.chordLengthToArcLength(jointSize, baseRadius);
@@ -398,14 +415,14 @@ class FlatArch extends Arch {
             skewLength: skewLength,
             skewAngle: skewAngle,
             baseRise: baseRise,
-            baseRadius: (baseRise > 0) ? baseRadius : null,
-            baseOrigin: (baseRise > 0) ? baseOrigin : null,
-            baseFullAngle: (baseRise > 0) ? baseHalfAngle * 2 : null,
-            baseBrickAngle: (baseRise > 0) ? baseBrickAngle : null,
+            baseRadius: baseRadius,
+            baseOrigin: baseOrigin,
+            baseFullAngle: (baseRise > 0 && baseHalfAngle) ? baseHalfAngle * 2 : null,
+            baseBrickAngle: baseBrickAngle,
             topRise: topRise,
             topRadius: (topRise > 0) ? topRadius: null,
             topOrigin: (topRise > 0) ? topOrigin: null,
-            topFullAngle: (topRise > 0) ? topHalfAngle * 2 : null,
+            topFullAngle: (topRise > 0 && topHalfAngle) ? topHalfAngle * 2 : null,
             topBrickAngle: (topRise > 0) ? topBrickAngle : null,
 
             brickCount: brickCount,
@@ -419,52 +436,57 @@ class FlatArch extends Arch {
         }
 
         // Calculate coordinates of pieces
-        // Plot bottom pieces
-        if (baseRise <= 0) {
-            for (let i = 0; i < brickCount; i++) {
-                let piece = {};
-                piece["bl"] = [skewLength + (baseBrickWidth + jointSize) * i, 0];
-                piece["br"] = [skewLength + (baseBrickWidth + jointSize) * i + baseBrickWidth, 0];
-                this.drawingData["pieces"].push(piece);
-            }
-        } else {
-            let baseCurrentAngle = (Math.PI / 2) + baseHalfAngle - (baseBrickAngle / 2);
-            for (let i = 0; i < brickCount; i++) {
-                let piece = {};
-                piece["bc"] = this.calculateEndpoint(baseOrigin[0], baseOrigin[1], baseRadius, baseCurrentAngle);
+        let bc: [number, number] | null, bl: [number, number], br: [number, number],
+            tc: [number, number] | null, tr: [number, number], tl: [number, number];
+        
+        for (let i = 0; i < brickCount; i++) {
+            // Plot bottom pieces
+            if (baseRise <= 0 || !baseHalfAngle || !baseOrigin || !baseRadius || !baseBrickAngle || !baseJointAngle) {
+                bl = [skewLength + (baseBrickWidth + jointSize) * i, 0];
+                br = [skewLength + (baseBrickWidth + jointSize) * i + baseBrickWidth, 0];
+            } else {
+                let baseCurrentAngle = (Math.PI / 2) + baseHalfAngle - (baseBrickAngle / 2);
+                bc = this.calculateEndpoint(baseOrigin[0], baseOrigin[1], baseRadius, baseCurrentAngle);
 
-                piece["bl"] = this.calculateEndpoint(piece["bc"][0], piece["bc"][1], baseBrickWidth / 2, baseCurrentAngle + (Math.PI / 2));
-                piece["br"] = this.calculateEndpoint(piece["bc"][0], piece["bc"][1], baseBrickWidth / 2, baseCurrentAngle - (Math.PI / 2));
+                bl = this.calculateEndpoint(bc[0], bc[1], baseBrickWidth / 2, baseCurrentAngle + (Math.PI / 2));
+                br = this.calculateEndpoint(bc[0], bc[1], baseBrickWidth / 2, baseCurrentAngle - (Math.PI / 2));
 
-                this.drawingData["pieces"].push(piece);
                 baseCurrentAngle -= baseBrickAngle + baseJointAngle;
             }
-        }
+            // Plot top pieces
+            if (topRise <= 0 || !topHalfAngle || !topBrickAngle || !topJointAngle || !topOrigin || !topRadius) {
+                tl = [(topBrickWidth + jointSize) * i, height]
+                tr = [(topBrickWidth + jointSize) * i + topBrickWidth, height];
+            } else {
+                let topCurrentAngle = (Math.PI / 2) + topHalfAngle - (topBrickAngle / 2);
+                tc = this.calculateEndpoint(topOrigin[0], topOrigin[1], topRadius, topCurrentAngle);
+                tc = tc
 
-        // Plot top pieces
-        if (topRise <= 0) {
-            for (let i = 0; i < brickCount; i++) {
-                this.drawingData["pieces"][i]["tl"] = [(topBrickWidth + jointSize) * i, height]
-                this.drawingData["pieces"][i]["tr"] = [(topBrickWidth + jointSize) * i + topBrickWidth, height];
-            }
-        } else {
-            let topCurrentAngle = (Math.PI / 2) + topHalfAngle - (topBrickAngle / 2);
-            for (let i = 0; i < brickCount; i++) {
-                let tc = this.calculateEndpoint(topOrigin[0], topOrigin[1], topRadius, topCurrentAngle);
-                this.drawingData["pieces"][i]["tc"] = tc
-
-                this.drawingData["pieces"][i]["tl"] = this.calculateEndpoint(tc[0], tc[1], topBrickWidth / 2, topCurrentAngle + (Math.PI / 2));
-                this.drawingData["pieces"][i]["tr"] = this.calculateEndpoint(tc[0], tc[1], topBrickWidth / 2, topCurrentAngle - (Math.PI / 2));
+                tl = this.calculateEndpoint(tc[0], tc[1], topBrickWidth / 2, topCurrentAngle + (Math.PI / 2));
+                tr = this.calculateEndpoint(tc[0], tc[1], topBrickWidth / 2, topCurrentAngle - (Math.PI / 2));
 
                 topCurrentAngle -= topBrickAngle + topJointAngle;
-            } 
+            }
+
+            this.drawingData.pieces.push({
+                "bl": bl,
+                "br": br,
+                "tr": tr,
+                "tl": tl
+            });
         }
     }
 
     // Temporary logic until individual pieces are added - base class will contain master drawShapes function
-    traceOutline() {
+    protected traceOutline(): void {
         const ctx = this.ctx;
         const dd = this.drawingData;
+
+        if (!(ctx instanceof CanvasRenderingContext2D) || !dd["baseOrigin"] || !dd["baseRadius"] || !dd["baseFullAngle"]
+           || !dd["topOrigin"] || !dd["topRadius"] || !dd["topFullAngle"]) {
+            return
+        }
+
         ctx.translate(this.margin, this.margin);
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     
@@ -486,42 +508,41 @@ class FlatArch extends Arch {
     }
 
     // Conversion between angle and actual length of skew of flat arches using actual height of arch
-    degToLength(deg, height) {
+    protected degToLength(deg: number, height: number): number {
         return Math.tan(this.degToRad(deg)) * height;
     }
 
-    radToLength(rad, height) {
+    protected radToLength(rad: number, height: number): number {
         return Math.tan(rad) * height;
     }
 
-    lengthToDeg(length, height) {
-        return this.radToDeg(lengthToRad(length, height));
+    protected lengthToDeg(length:number, height: number): number {
+        return this.radToDeg(this.lengthToRad(length, height));
     }
 
-    lengthToRad(length, height) {
+    protected lengthToRad(length: number, height: number): number {
         return Math.atan(length / height);
     }
 }
 
 class RadialArch extends Arch {
-    constructor(canvas, type) {
+    protected type: "radial" | "semicircle" | "bullseye";
+    constructor(canvas: HTMLDivElement, type: "radial" | "semicircle" | "bullseye") {
         super(canvas);
         this.type = type;
-        this.drawingData["rise"] = undefined;
-        this.drawingData["skewAngle"] = undefined;
-        this.drawingData["skewLength"] = undefined;
-        this.drawingData["origin"] = undefined;
-        this.drawingData["fullAngle"] = undefined;
-        this.drawingData["baseRadius"] = undefined;
-        this.drawingData["topRadius"] = undefined;
     }
 
-    generateData() {
+    protected generateData(): void {
         // Reading toolbar and calculations
         let opening = parseInt(this.toolbar.elements["opening"].value);
         let height = parseInt(this.toolbar.elements["height"].value);
+        if (opening == null || height == null) {
+            console.error("Null value for opening or height");
+            return;
+        }
 
-        let rise, baseRadius, topRadius, skewAngle, skewLength, origin, fullAngle, drawingWidth, drawingHeight;
+        let rise: number, baseRadius: number | null, topRadius: number | null, skewAngle: number, skewLength: number,
+            origin: [number, number] | null, fullAngle: number, drawingWidth: number, drawingHeight: number;
         switch (this.type) {
             case "radial":
                 let measurement = parseInt(this.toolbar.elements["rise-or-skew"].value);
@@ -530,14 +551,14 @@ class RadialArch extends Arch {
                         rise = measurement;
                         if (rise > 0) {
                             baseRadius = ((((opening / 2) ** 2) / rise) + rise) / 2;
-                            topRadius = (baseRadius != "n/a") ? baseRadius + height : "n/a";
+                            topRadius = (baseRadius != null) ? baseRadius + height : null;
                             skewAngle = Math.atan((opening / 2) / (baseRadius - rise));
                             skewLength = this.radToLength(skewAngle, height);
                             origin = [(opening / 2) + skewLength, rise - baseRadius];
                             fullAngle = skewAngle * 2;
                         } else {
                             skewLength = skewAngle = fullAngle = 0;
-                            baseRadius = topRadius = origin = "n/a";
+                            baseRadius = topRadius = origin = null;
                         }
                         break;
                     case "deg":
@@ -546,13 +567,12 @@ class RadialArch extends Arch {
                             fullAngle = skewAngle * 2;
                             skewLength = this.radToLength(skewAngle, height);
                             baseRadius = (opening / 2) / Math.sin(skewAngle);
-                            topRadius = (baseRadius != "n/a") ? baseRadius + height : "n/a";
+                            topRadius = (baseRadius != null) ? baseRadius + height : null;
                             rise = baseRadius - (opening / 2 / Math.tan(skewAngle));
-                            fullAngle = skewAngle * 2
                             origin = [(opening / 2) + skewLength, rise - baseRadius];
                         } else {
                             skewLength = skewAngle = fullAngle = rise = 0;
-                            baseRadius = topRadius = origin = "n/a";
+                            baseRadius = topRadius = origin = null;
                         }
                         break;
                     case "mm":
@@ -560,24 +580,32 @@ class RadialArch extends Arch {
                         if (skewLength > 0) {
                             skewAngle = this.lengthToRad(skewLength, height);
                             baseRadius = (opening / 2) / Math.sin(skewAngle);
-                            topRadius = (baseRadius != "n/a") ? baseRadius + height : "n/a";
+                            topRadius = (baseRadius != null) ? baseRadius + height : null;
                             rise = baseRadius - (opening / 2 / Math.tan(skewAngle));
                             fullAngle = skewAngle * 2;
                             origin = [(opening / 2) + skewLength, rise - baseRadius];
                         } else {
                             skewLength = skewAngle = fullAngle = rise = 0;
-                            baseRadius = topRadius = origin = "n/a";
+                            baseRadius = topRadius = origin = null;
                         }
                         break;
                     default:
+                        console.error("Unrecognised rise/skew choice on radial arch.");
+                        return;
                 }
-                drawingWidth = this.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2 - skewAngle)[0];
-                drawingHeight = this.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2)[1]; //rise + height;
+
+                if (baseRadius && topRadius && origin) {
+                    drawingWidth = this.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2 - skewAngle)[0];
+                    drawingHeight = this.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2)[1]; //rise + height;
+                } else {
+                    drawingWidth = opening + 2 * this.margin;
+                    drawingHeight = height + 2 * this.margin;
+                }
 
                 break;
             case "semicircle":
                 baseRadius = opening / 2;
-                topRadius = (baseRadius != "n/a") ? baseRadius + height : "n/a";
+                topRadius = baseRadius + height;
                 skewAngle = this.degToRad(90);
                 skewLength = height;
                 rise = opening / 2;
@@ -588,7 +616,7 @@ class RadialArch extends Arch {
                 break;
             case "bullseye":
                 baseRadius = opening / 2;
-                topRadius = (baseRadius != "n/a") ? baseRadius + height : "n/a";
+                topRadius = baseRadius + height;
                 skewAngle = this.degToRad(180);
                 skewLength = 0;
                 rise = opening + height;
@@ -598,6 +626,12 @@ class RadialArch extends Arch {
                 drawingHeight = 2 * topRadius;
                 break;
             default:
+                console.error(`Unrecognised arch type: ${this.type}`);
+                return;
+        }
+
+        if (fullAngle === null || baseRadius === null || topRadius === null || origin === null) {
+            throw TypeError("Unexpected null value.");
         }
 
         let brickDivisionValue = parseInt(this.toolbar.elements["brick-width-or-count"].value);
@@ -667,30 +701,36 @@ class RadialArch extends Arch {
             topCurrentAngle -= (Math.PI) - topBrickAngle / 2;
         }
 
+        let baseAngle: number, topAngle: number, bc: [number, number], tc: [number, number], bl: [number, number],
+            br: [number, number], tr: [number, number], tl: [number, number];
         for (let i = 0; i < brickCount; i++) {
-            let piece = {};
-            piece["baseAngle"] = baseCurrentAngle;
-            piece["topAngle"] = topCurrentAngle
-            piece["bc"] = this.calculateEndpoint(origin[0], origin[1], baseRadius, baseCurrentAngle);
-            piece["tc"] = this.calculateEndpoint(origin[0], origin[1], topRadius, topCurrentAngle);
+            baseAngle = baseCurrentAngle;
+            topAngle = topCurrentAngle
+            bc = this.calculateEndpoint(origin[0], origin[1], baseRadius, baseCurrentAngle);
+            tc = this.calculateEndpoint(origin[0], origin[1], topRadius, topCurrentAngle);
             
             if (this.type !== "semicircle" || i > 0) {
-                piece["bl"] = this.calculateEndpoint(piece["bc"][0], piece["bc"][1], baseBrickWidth / 2, baseCurrentAngle + (Math.PI / 2));
-                piece["tl"] = this.calculateEndpoint(piece["tc"][0], piece["tc"][1], topBrickWidth / 2, topCurrentAngle + (Math.PI / 2));
+                bl = this.calculateEndpoint(bc[0], bc[1], baseBrickWidth / 2, baseCurrentAngle + (Math.PI / 2));
+                tl = this.calculateEndpoint(tc[0], tc[1], topBrickWidth / 2, topCurrentAngle + (Math.PI / 2));
             } else {
-                piece["bl"] = [height, 0];
-                piece["tl"] = [0, 0];
+                bl = [height, 0];
+                tl = [0, 0];
             }
 
             if (this.type !== "semicircle" || i < brickCount - 1) {
-                piece["br"] = this.calculateEndpoint(piece["bc"][0], piece["bc"][1], baseBrickWidth / 2, baseCurrentAngle - (Math.PI / 2));
-                piece["tr"] = this.calculateEndpoint(piece["tc"][0], piece["tc"][1], topBrickWidth / 2, topCurrentAngle - (Math.PI / 2));
+                br = this.calculateEndpoint(bc[0], bc[1], baseBrickWidth / 2, baseCurrentAngle - (Math.PI / 2));
+                tr = this.calculateEndpoint(tc[0], tc[1], topBrickWidth / 2, topCurrentAngle - (Math.PI / 2));
             } else {
-                piece["br"] = [height + opening, 0];
-                piece["tr"] = [2 * height + opening, 0];
+                br = [height + opening, 0];
+                tr = [2 * height + opening, 0];
             }
 
-            this.drawingData["pieces"].push(piece);
+            this.drawingData["pieces"].push({
+                "bl": bl,
+                "br": br,
+                "tr": tr,
+                "tl": tl
+            });
             baseCurrentAngle -= baseBrickAngle + baseJointAngle;
             topCurrentAngle -= topBrickAngle + topJointAngle;
         }
@@ -698,9 +738,12 @@ class RadialArch extends Arch {
     }
 
     // Temporary logic until individual pieces are added - base class will contain master drawShapes function
-    traceOutline() {
+    protected traceOutline(): void {
         const ctx = this.ctx;
         const dd = this.drawingData;
+        if (!(ctx instanceof CanvasRenderingContext2D) || !dd["origin"] || !dd["baseRadius"] || !dd["topRadius"]) {
+            return;
+        }
         ctx.translate(this.margin, this.margin);
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     
@@ -776,19 +819,19 @@ class RadialArch extends Arch {
     }
 
     // Conversion between angle and actual length of skew of radial arches using angular height of arch
-    degToLength(deg, height) {
+    protected degToLength(deg: number, height: number): number {
         return Math.sin(this.degToRad(deg)) * height;
     }
 
-    radToLength(rad, height) {
+    protected radToLength(rad: number, height: number): number {
         return Math.sin(rad) * height;
     }
 
-    lengthToDeg(length, height) {
-        return this.radToDeg(lengthToRad(length, height));
+    protected lengthToDeg(length: number, height: number): number {
+        return this.radToDeg(this.lengthToRad(length, height));
     }
 
-    lengthToRad(length, height) {
+    protected lengthToRad(length: number, height: number): number {
         return Math.asin(length / height);
     }
 }
