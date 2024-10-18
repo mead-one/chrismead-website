@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "es6",
+        "outDir": "./assets/js",
+        "rootDir": "./assets/ts",
+        "strict": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true
+    },
+    "include": ["./assets/ts/**/*.ts"],
+    "exclude": [
+        "node_modules"
+    ]
+}
