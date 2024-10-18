@@ -1,3 +1,4 @@
+import { Project } from "./projects";
 document.addEventListener("DOMContentLoaded", initialise);
 
 function initialise() {
@@ -217,7 +218,7 @@ interface FlatArchDrawingParameters extends ArchDrawingParameters {
 interface RadialArchDrawingParameters extends ArchDrawingParameters {
 }
 
-export class Arch extends Project {
+class Arch extends Project {
     protected toolbar: HTMLFormElement;
     protected canvas: HTMLCanvasElement;
     protected ctx: CanvasRenderingContext2D | null;

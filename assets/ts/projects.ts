@@ -8,6 +8,10 @@ export class Project {
     protected content: HTMLDivElement;
 
     constructor (container: HTMLDivElement) {
+        // Placeholder values
+        this.appId = "untitled";
+        this.appTitle = "Untitled Project";
+
         // Container element for app
         this.container = container;
         this.container.innerHTML = "";
