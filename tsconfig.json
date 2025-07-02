@@ -1,19 +1,36 @@
 {
     "compilerOptions": {
-        "target": "es6",
-        "module": "es6",
-        "outDir": "./assets/js",
-        "rootDir": "./assets/ts",
+        "target": "ES2020",
+        "module": "ESNext",
+        "lib": ["ES2020", "DOM"],
+        "skipLibCheck": true,
+
+        /* Bundler */
+        "moduleResolution": "node",
+        "allowImportingTsExtensions": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+
+        /* Linting */
         "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
-        "skipLibCheck": true,
         "sourceMap": true,
-        "moduleResolution": "node",
-        "resolveJsonModule": true
+        "declaration": true,
+
+        "outDir": "./dist"
+        // "outDir": "./assets/js",
+        // "rootDir": "./assets/ts",
     },
     "include": ["./assets/ts/**/*.ts"],
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "dist",
+        "public"
     ]
 }
