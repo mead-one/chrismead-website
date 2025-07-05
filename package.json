@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:watch": "vite build --watch",
+    "hugo:dev": "hugo server -D",
+    "hugo:build": "hugo --minify",
+    "dev:all": "concurrently \"npm run build:watch\" \"npm run hugo:dev\"",
+    "build:all": "npm run build && npm run hugo:build"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0",
+    "typescript": "^4.9.0",
+    "concurrently": "^7.0.0"
+  }
+}

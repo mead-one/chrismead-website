@@ -1,36 +1,72 @@
 // Defines a skeleton "window" to contain projects to be showcased on the website
 
-export class Project {
-    public appId: string;
-    public appTitle: string;
-    public container: HTMLDivElement;
-    protected titlebar: HTMLDivElement;
-    protected content: HTMLDivElement;
+// enum ToolbarItemType {
+//     Button,
+//     Checkbox,
+//     Radio,
+//     Text,
+//     Select,
+//     Span
+// }
+//
+// interface SelectChoice {
+//     value: string;
+//     label: string;
+// }
+//
+// export interface ToolbarItem {
+//     id: string;
+//     name: string;
+//     label: string;
+//     type: ToolbarItemType;
+//     choices?: SelectChoice[]; // Only used for select
+//     classList?: string[]; // Only used for span
+// }
 
-    constructor (container: HTMLDivElement) {
+export abstract class Project {
+    appId: string;
+    appTitle: string;
+    protected container: HTMLDivElement;
+    titlebar: HTMLDivElement;
+    content: HTMLDivElement;
+
+    constructor (appId: string, appTitle: string, container: HTMLDivElement) {
         // Placeholder values
-        this.appId = "untitled";
-        this.appTitle = "Untitled Project";
+        this.appId = appId;
+        this.appTitle = appTitle;
 
         // Container element for app
         this.container = container;
-        this.container.innerHTML = "";
+        this.container.innerHTML = '';
+
+        // Build titlebar
+        this.titlebar = this.buildTitlebar();
+
+        // Populate container with toolbar and body
+        this.container.appendChild(this.titlebar);
         
-        // Create and populate titlebar     
-        this.titlebar = document.createElement("div");
-        this.titlebar.classList.add("project-title-bar");
+        this.content = document.createElement("div");
+        this.content.setAttribute("id", `${this.appId}-content`);
+        this.content.classList.add("project-content");
+        this.container.appendChild(this.content);
+    }
+
+    protected buildTitlebar(): HTMLDivElement {
+        // Create and populate titlebar
+        const titlebar = document.createElement("div");
+        titlebar.classList.add("project-title-bar");
 
         // Titlebar icon
         const titlebarIcon = document.createElement("img");
         titlebarIcon.classList.add("project-window-icon");
         titlebarIcon.height = 18;
-        titlebarIcon.setAttribute("src", `/static/img/${this.appId}-icon.png`);
-        this.titlebar.appendChild(titlebarIcon);
+        titlebarIcon.setAttribute("src", `/img/${this.appId}-icon.png`);
+        titlebar.appendChild(titlebarIcon);
 
         // "Window title"
         const titlebarTitle = document.createElement("h2");
         titlebarTitle.innerText = this.appTitle;
-        this.titlebar.appendChild(titlebarTitle);
+        titlebar.appendChild(titlebarTitle);
 
         // "Window controls"
         const titlebarControls = document.createElement("span");
@@ -50,7 +86,7 @@ export class Project {
         titlebarControls.appendChild(titlebarMinimiseLbl);
 
         const titlebarMinimiseImg = document.createElement("img");
-        titlebarMinimiseImg.src = "/static/img/minimise-btn.png";
+        titlebarMinimiseImg.src = "/img/minimise-btn.png";
         titlebarMinimiseImg.width = 16;
         titlebarMinimiseImg.height = 16;
         titlebarMinimiseLbl.appendChild(titlebarMinimiseImg);
@@ -69,38 +105,50 @@ export class Project {
         titlebarControls.appendChild(titlebarMaximiseLbl);
 
         const titlebarMaximiseImg = document.createElement("img");
-        titlebarMaximiseImg.src = "/static/img/maximise_btn.png";
+        titlebarMaximiseImg.src = "/img/maximise-btn.png";
         titlebarMaximiseImg.width = 16;
         titlebarMaximiseImg.height = 16;
         titlebarMaximiseLbl.appendChild(titlebarMaximiseImg);
 
         // Close button
         const titlebarCloseImg = document.createElement("img");
-        titlebarCloseImg.src = "/static/img/close-btn.png";
+        titlebarCloseImg.src = "/img/close-btn.png";
         titlebarCloseImg.classList.add("project-window-close");
         titlebarCloseImg.width = 16;
         titlebarCloseImg.height = 16;
         titlebarControls.appendChild(titlebarCloseImg);
 
-        this.titlebar.appendChild(titlebarControls);
+        titlebar.appendChild(titlebarControls);
 
-        // Populate container with toolbar and body
-        container.appendChild(this.titlebar);
-        
-        this.content = document.createElement("div");
-        this.content.setAttribute("id", `${this.appId}-content`);
-        this.content.classList.add("project-content");
-        container.appendChild(this.content);
+        return titlebar;
     }
 
-    // Generate default HTML for toolbar
-    protected getDefaultToolbarHtml(): string {
-        return `div class="default-toolbar-content">Default Toolbar</div>`;
-    }
-
-    // Generate default HTML for body
-    protected getDefaultBodyHtml(): string {
-        return `<div class="default-body-content">Default Content</div>`;
-    }
+    // protected onMinimise(): void {
+    //     // TODO: Minimise window
+    //     const projectWindow = e.target.parentElement.parentElement.parentElement;
+    //     const maximiseButton = e.target.parentElement.querySelector(".project-window-maximise");
+    //     const content = projectWindow.querySelector(".project-content");
+    //     // Un-maximise the window
+    //     if (maximiseButton.checked) {
+    //         maximiseButton.checked = false;
+    //         projectWindow.classList.remove("maximised");
+    //     }
+    //
+    //     if (e.target.checked) {
+    //         this.container.classList.add("minimised");
+    //         content.classList.add("minimised");
+    //     } else {
+    //         this.container.classList.remove("minimised");
+    //         content.classList.remove("minimised");
+    //     }
+    // }
+    //
+    // protected onMaximise(): void {
+    //     // TODO: Maximise window
+    // }
+    //
+    // protected onClose(): void {
+    //     // TODO: Close window
+    // }
 }
 
