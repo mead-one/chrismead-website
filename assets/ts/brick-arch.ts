@@ -1519,6 +1519,19 @@ class ArchApplication {
             fieldElement.addEventListener("change", () => {
                 this.refresh();
             });
+
+            if (field.hasOwnProperty("additional") && field.additional) {
+                for (let additionalField of field.additional) {
+                    const additionalFieldElement: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | HTMLButtonElement | null = this.toolbar.toolbarElement.querySelector(`[name=${additionalField.name}]`);
+
+                    if (!additionalFieldElement || (!(additionalFieldElement instanceof HTMLInputElement) && !(additionalFieldElement instanceof HTMLSelectElement) && !(additionalFieldElement instanceof HTMLTextAreaElement) && !(additionalFieldElement instanceof HTMLButtonElement))) {
+                        continue;
+                    }
+                    additionalFieldElement.addEventListener("change", () => {
+                        this.refresh();
+                    });
+                }
+            }
         }
     }
 
