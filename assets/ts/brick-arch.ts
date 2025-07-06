@@ -1255,7 +1255,6 @@ class AxisRenderer {
 
     updateAxes(canvasWidth: number, canvasHeight: number, margin: number): void {
         // Scaling
-        console.log(`A Margin: ${margin} from ${this.constructor.name}`);
         let precision = Math.max(
             this.nearestPrecision(canvasWidth, 10),
             this.nearestPrecision(canvasHeight, 8)
@@ -1471,7 +1470,6 @@ class ArchApplication {
                 throw new Error(`Unrecognised arch type: ${this.config.type}`);
         }
 
-        console.log(`B Margin: ${globalThis.Arch.app.margin} from ${this.constructor.name}`);
         this.calculateAndRender();
     }
 
@@ -1489,9 +1487,7 @@ class ArchApplication {
             throw new Error(`Unrecognised arch type: ${this.config.type}`);
         }
 
-        console.log(`C Margin: ${globalThis.Arch.app.margin} from ${this.constructor.name}`);
         this.axisRenderer.updateAxes(this.canvas.width, this.canvas.height, this.margin);
-        console.log(`D Margin: ${globalThis.Arch.app.margin} from ${this.constructor.name}`);
         this.adjustViewport();
     }
 
