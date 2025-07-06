@@ -1091,6 +1091,9 @@ abstract class ArchRenderer {
         }
 
         this.ctx.translate(globalThis.Arch.app.margin, globalThis.Arch.app.margin);
+
+        // Set the stroke width
+        this.ctx.lineWidth = Math.min(width / 500, Math.ceil(globalThis.Arch.app.config.jointSize / 2));
     }
 }
 
@@ -1260,6 +1263,8 @@ class AxisRenderer {
             this.nearestPrecision(canvasHeight, 8)
         );
         var axesLabelSize = Math.max(Math.round(canvasHeight / 40), Math.round(canvasWidth / 50));
+        const axesWidth = Math.floor(canvasWidth / 300);
+        const gridWidth = Math.floor(canvasWidth / 400);
 
         this.axes.innerHTML = "";
         this.grid.innerHTML = "";
@@ -1268,12 +1273,14 @@ class AxisRenderer {
         xAxis.className = "axis x";
         xAxis.style.top = `${this.canvas.height - margin + 1}px`;
         xAxis.style.width = `${this.canvas.width}px`;
+        xAxis.style.height = `${axesWidth}px`;
         this.axes.appendChild(xAxis);
 
         const yAxis = document.createElement("div");
         yAxis.className = "axis y";
         yAxis.style.left = `${margin -2}px`;
         yAxis.style.height = `${this.canvas.height}px`;
+        yAxis.style.width = `${axesWidth}px`;
         this.axes.appendChild(yAxis);
 
         // Label the axes
@@ -1290,6 +1297,7 @@ class AxisRenderer {
             grid.className = "grid y";
             grid.style.left = `${i + margin - 1}px`;
             grid.style.height = `${this.canvas.height}px`;
+            grid.style.width = `${gridWidth}px`;
             this.grid.appendChild(grid);
         }
         
@@ -1306,6 +1314,7 @@ class AxisRenderer {
             grid.className = "grid x";
             grid.style.top = `${this.canvas.height - i - margin}px`;
             grid.style.width = `${this.canvas.width}px`;
+            grid.style.height = `${gridWidth}px`;
             this.grid.appendChild(grid);
         }
     }
