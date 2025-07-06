@@ -338,8 +338,6 @@ class FlatArchCalculator extends ArchCalculator {
             throw new Error("Missing skew value");
         }
 
-        console.log(`Skew: ${config.skew}${config.skewUnit}`);
-        console.log(`Config: ${JSON.stringify(config)}`);
         let skewLength: number, skewAngle: number, baseFullAngle: number | null;
         switch (config.skewUnit) {
             case "deg":
@@ -446,10 +444,10 @@ class FlatArchCalculator extends ArchCalculator {
             baseJointAngle = this.geometry.arcLengthToArcAngle(baseJointArcLength, baseRadius);
         }
 
-        let drawingWidth = config.opening + 2 * skewLength + 2 * globalThis.Arch.app.renderer.margin;
+        let drawingWidth = config.opening + 2 * skewLength;
         let drawingHeight = config.topRise ?
-            config.height + config.topRise + 2 * globalThis.Arch.app.renderer.margin :
-            config.height + 2 * globalThis.Arch.app.renderer.margin;
+            config.height + config.topRise :
+            config.height;
 
         const params: FlatArchParameters = {
             type: config.type,
@@ -586,11 +584,11 @@ class RadialArchCalculator extends ArchCalculator {
                 }
 
                 if (baseRadius && topRadius && origin) {
-                    drawingWidth = this.geometry.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2 - skewAngle)[0] + 2 * globalThis.Arch.app.renderer.margin;
-                    drawingHeight = this.geometry.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2)[1] + 2 * globalThis.Arch.app.renderer.margin; //rise + height;
+                    drawingWidth = this.geometry.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2 - skewAngle)[0];
+                    drawingHeight = this.geometry.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2)[1];
                 } else {
-                    drawingWidth = config.opening + 2 * globalThis.Arch.app.renderer.margin;
-                    drawingHeight = config.height + 2 * globalThis.Arch.app.renderer.margin;
+                    drawingWidth = config.opening;
+                    drawingHeight = config.height;
                 }
 
                 break;
@@ -602,8 +600,8 @@ class RadialArchCalculator extends ArchCalculator {
                 rise = config.opening / 2;
                 origin = [topRadius, 0];
                 fullAngle = Math.PI;
-                drawingWidth = 2 * (topRadius + globalThis.Arch.app.renderer.margin);
-                drawingHeight = topRadius + 2 * globalThis.Arch.app.renderer.margin;
+                drawingWidth = 2 * topRadius;
+                drawingHeight = topRadius;
                 break;
             case "bullseye":
                 baseRadius = config.opening / 2;
@@ -613,7 +611,7 @@ class RadialArchCalculator extends ArchCalculator {
                 rise = config.opening + config.height;
                 origin = [topRadius, topRadius];
                 fullAngle = 2 * Math.PI;
-                drawingWidth = 2 * (topRadius + globalThis.Arch.app.renderer.margin);
+                drawingWidth = 2 * topRadius;
                 drawingHeight = drawingWidth;
                 break;
             default:
@@ -654,7 +652,6 @@ class RadialArchCalculator extends ArchCalculator {
         let topBrickWidth = this.geometry.arcLengthToTangentLength(topBrickArcLength, topRadius);
         let topBrickAngle = this.geometry.arcLengthToArcAngle(topBrickArcLength, topRadius);
         let topJointAngle = this.geometry.arcLengthToArcAngle(topJointArcLength, topRadius);
-        // console.log(`Arc length: ${topArcLength}, 
         
         let baseArcLength = this.geometry.arcAngleToArcLength(fullAngle, baseRadius);
         let baseJointArcLength = this.geometry.tangentLengthToArcLength(config.jointSize, baseRadius);
@@ -872,7 +869,6 @@ class ToolbarManager {
                 console.error(`Field #${field.name}-toolbar-item is not an input element.`);
                 continue;
             }
-            console.log(fieldElement);
 
             if (field.visibleFor && field.visibleFor.includes(archType)) {
                 fieldElement.style.display = 'inline-block';
@@ -937,7 +933,6 @@ class ToolbarManager {
                         }
                     }
 
-                    console.log(`Additional field: ${additionalField.name}`);
                     switch (additionalField.type) {
                         case "number":
                             if (!(additionalFieldElement instanceof HTMLInputElement)) {
@@ -963,8 +958,6 @@ class ToolbarManager {
                 }
             }
         }
-
-        console.log(`Radial form data: ${JSON.stringify(formData)}`);
 
         return formData;
     }
@@ -999,7 +992,6 @@ class ToolbarManager {
                     skewUnit: formData["skew-units-select"],
                     skew: parseInt(formData["skew"]),
                 }
-                console.log(`Config: ${JSON.stringify(config)}`);
                 return config;
             case "radial":
             case "semicircle":
@@ -1058,13 +1050,11 @@ class ToolbarManager {
 abstract class ArchRenderer {
     protected canvas: HTMLCanvasElement;
     protected ctx: CanvasRenderingContext2D;
-    margin: number;
     protected geometry = new GeometryUtils();
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
-        this.margin = DEFAULT_CANVAS_MARGIN;
         this.geometry = new GeometryUtils();
 
     }
@@ -1074,7 +1064,7 @@ abstract class ArchRenderer {
     }
 
     drawPieces(pieces: BrickPiece[]): void {
-        this.ctx.translate(this.margin, this.margin);
+        this.ctx.translate(globalThis.Arch.app.margin, globalThis.Arch.app.margin);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         for (let piece of pieces) {
@@ -1090,10 +1080,17 @@ abstract class ArchRenderer {
 
     abstract drawOutline(parameters: FlatArchParameters | RadialArchParameters): void;
 
-    adjustCanvas(width: number, height: number): void {
-        this.margin = Math.max(Math.round(height / 300), Math.round(width / 500)) * 50;
-        this.canvas.height = height + 2 * this.margin;
-        this.canvas.width = width + 2 * this.margin;
+    adjustCanvas(width: number, height: number, clear?: boolean): void {
+        globalThis.Arch.app.margin = Math.max(Math.round(height / 300), Math.round(width / 500)) * 50;
+        this.canvas.width = width + 2 * globalThis.Arch.app.margin;
+        this.canvas.height = height + 2 * globalThis.Arch.app.margin;
+        this.ctx.resetTransform();
+
+        if (clear) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+
+        this.ctx.translate(globalThis.Arch.app.margin, globalThis.Arch.app.margin);
     }
 }
 
@@ -1103,37 +1100,19 @@ class FlatArchRenderer extends ArchRenderer {
     }
 
     drawOutline(parameters: FlatArchParameters, clear?: boolean): void {
-        console.log(`Drawing flat arch outline: ${JSON.stringify(parameters)}`);
         if (parameters.baseRise == null || parameters.topRise == null ||
             parameters.skewAngle == null || parameters.skewLength == null ||
             parameters.height == null) {
             throw new Error("Missing required parameters.");
         }
 
-        if (clear) {
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        }
+        this.adjustCanvas(parameters.drawingWidth, parameters.drawingHeight, clear);
 
-        console.log(`Parameters: ${JSON.stringify(parameters)}`);
-
-        this.canvas.width = parameters.drawingWidth;
-        this.canvas.height = parameters.drawingHeight;
-
-        this.ctx.resetTransform();
-        this.ctx.translate(this.margin, this.margin);
-
-        console.log(`Skew length: ${parameters.skewLength} (${typeof parameters.skewLength}), Opening: ${parameters.opening} (${typeof parameters.opening}), Height: ${parameters.height} (${typeof parameters.height})`);
-        console.log(`Top length: ${parameters.skewLength * 2 + parameters.opening} (${typeof (parameters.skewLength * 2 + parameters.opening)}), Top height: ${parameters.height} (${typeof parameters.height})`);
         let bl: Point, br: Point, tr: Point, tl: Point;
         bl = [parameters.skewLength, 0];
         br = [parameters.skewLength + Number(parameters.opening), 0];
         tr = [parameters.skewLength * 2 + Number(parameters.opening), parameters.height];
         tl = [0, parameters.height];
-
-        console.log(`Bottom left: ${JSON.stringify(bl)}`);
-        console.log(`Bottom right: ${JSON.stringify(br)}`);
-        console.log(`Top right: ${JSON.stringify(tr)}`);
-        console.log(`Top left: ${JSON.stringify(tl)}`);
 
         this.ctx.beginPath();
         this.ctx.lineTo(bl[0], bl[1]);
@@ -1167,7 +1146,7 @@ class RadialArchRenderer extends ArchRenderer {
         super(canvas);
     }
 
-    drawOutline(parameters: RadialArchParameters): void {
+    drawOutline(parameters: RadialArchParameters, clear?: boolean): void {
         console.log("drawOutline");
         if (parameters.baseBrickAngle == null || parameters.topBrickAngle == null ||
             parameters.baseJointAngle == null || parameters.topJointAngle == null ||
@@ -1179,12 +1158,7 @@ class RadialArchRenderer extends ArchRenderer {
             throw new Error("Missing required parameters.");
         }
 
-        this.canvas.width = parameters.drawingWidth;
-        this.canvas.height = parameters.drawingHeight;
-
-        this.ctx.resetTransform();
-        this.ctx.translate(this.margin, this.margin);
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.adjustCanvas(parameters.drawingWidth, parameters.drawingHeight, clear);
 
         let bl: Point, br: Point, tr: Point, tl: Point;
         bl = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.baseRadius, Math.PI / 2 - parameters.skewAngle);
@@ -1197,7 +1171,6 @@ class RadialArchRenderer extends ArchRenderer {
 
         this.ctx.beginPath();
         this.ctx.lineTo(bl[0], bl[1]);
-        console.log(`Radial parameters: ${JSON.stringify(parameters)}`);
         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.baseRadius, startAngle, endAngle, false);
         this.ctx.lineTo(tr[0], tr[1]);
         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.topRadius, endAngle, startAngle, true);
@@ -1213,7 +1186,6 @@ class AxisRenderer {
     private axes: HTMLDivElement;
     private grid: HTMLDivElement;
     private toggleBox: HTMLFormElement;
-    private margin: number;
 
     constructor (canvasContainer: HTMLDivElement) {
         this.canvasContainer = canvasContainer;
@@ -1257,6 +1229,9 @@ class AxisRenderer {
             axesVisibilityInput.setAttribute("id", "axes-visibility-chk");
             axesVisibilityInput.setAttribute("name", "axes");
             axesVisibilityInput.setAttribute("checked", "true");
+            axesVisibilityInput.addEventListener("change", () => {
+                this.showAxes(axesVisibilityInput.checked);
+            });
             this.toggleBox.appendChild(axesVisibilityInput);
 
             const gridVisibilityLabel: HTMLLabelElement = document.createElement("label");
@@ -1269,16 +1244,18 @@ class AxisRenderer {
             gridVisibilityInput.setAttribute("id", "grid-visibility-chk");
             gridVisibilityInput.setAttribute("name", "grid");
             gridVisibilityInput.setAttribute("checked", "true");
+            gridVisibilityInput.addEventListener("change", () => {
+                this.showGrid(gridVisibilityInput.checked);
+            });
             this.toggleBox.appendChild(gridVisibilityInput);
 
             this.canvasContainer.appendChild(this.toggleBox);
         }
-
-        this.margin = DEFAULT_CANVAS_MARGIN;
     }
 
-    updateAxes(canvasWidth: number, canvasHeight: number): void {
+    updateAxes(canvasWidth: number, canvasHeight: number, margin: number): void {
         // Scaling
+        console.log(`A Margin: ${margin} from ${this.constructor.name}`);
         let precision = Math.max(
             this.nearestPrecision(canvasWidth, 10),
             this.nearestPrecision(canvasHeight, 8)
@@ -1290,13 +1267,13 @@ class AxisRenderer {
 
         const xAxis = document.createElement("div");
         xAxis.className = "axis x";
-        xAxis.style.top = `${this.canvas.height - this.margin + 1}px`;
+        xAxis.style.top = `${this.canvas.height - margin + 1}px`;
         xAxis.style.width = `${this.canvas.width}px`;
         this.axes.appendChild(xAxis);
 
         const yAxis = document.createElement("div");
         yAxis.className = "axis y";
-        yAxis.style.left = `${this.margin -2}px`;
+        yAxis.style.left = `${margin -2}px`;
         yAxis.style.height = `${this.canvas.height}px`;
         this.axes.appendChild(yAxis);
 
@@ -1304,15 +1281,15 @@ class AxisRenderer {
         for (let i = 0; i <= this.canvas.width; i += precision) {
             const label = document.createElement("div");
             label.className = "axis-label x";
-            label.style.left = `${this.margin + i - 1}px`;
-            label.style.top = `${this.canvas.height - this.margin + axesLabelSize}px`;
+            label.style.left = `${margin + i - 1}px`;
+            label.style.top = `${this.canvas.height - margin + axesLabelSize}px`;
             label.style.fontSize = `${axesLabelSize}px`;
             label.innerHTML = i.toString();
             this.axes.appendChild(label);
 
             const grid = document.createElement("div");
             grid.className = "grid y";
-            grid.style.left = `${i + this.margin - 1}px`;
+            grid.style.left = `${i + margin - 1}px`;
             grid.style.height = `${this.canvas.height}px`;
             this.grid.appendChild(grid);
         }
@@ -1320,15 +1297,15 @@ class AxisRenderer {
         for (let i = 0; i <= this.canvas.height; i += precision) {
             const label = document.createElement("div");
             label.className = "axis-label y";
-            label.style.top = `${this.canvas.height - this.margin - i}px`;
-            label.style.right = `${this.canvas.width - this.margin + axesLabelSize}px `;
+            label.style.top = `${this.canvas.height - margin - i}px`;
+            label.style.right = `${this.canvas.width - margin + axesLabelSize}px `;
             label.style.fontSize = `${axesLabelSize}px`;
             label.innerHTML = i.toString();
             this.axes.appendChild(label);
 
             const grid = document.createElement("div");
             grid.className = "grid x";
-            grid.style.top = `${this.canvas.height - i - this.margin}px`;
+            grid.style.top = `${this.canvas.height - i - margin}px`;
             grid.style.width = `${this.canvas.width}px`;
             this.grid.appendChild(grid);
         }
@@ -1361,6 +1338,14 @@ class AxisRenderer {
 
         return closestPrecision; //n; 
     }
+
+    showAxes(show: boolean): void {
+        this.axes.style.visibility = show ? "visible" : "hidden";
+    }
+
+    showGrid(show: boolean): void {
+        this.grid.style.visibility = show ? "visible" : "hidden";
+    }
 }
 
 class ArchCalculatorFactory {
@@ -1380,12 +1365,14 @@ class ArchCalculatorFactory {
 
 class ArchApplication {
     private container: HTMLDivElement;
+    private canvasContainer: HTMLDivElement;
     canvas: HTMLCanvasElement;
     config: ArchConfig;
     private calculator: ArchCalculator;
     renderer: FlatArchRenderer | RadialArchRenderer;
     private axisRenderer: AxisRenderer;
     private toolbar: ToolbarManager;
+    margin: number;
     resizeObserver: ResizeObserver;
 
     constructor(container: HTMLDivElement) {
@@ -1419,6 +1406,15 @@ class ArchApplication {
             canvasContainer.appendChild(canvas);
         }
         this.canvas = canvas;
+        
+        if (container.querySelector("div.canvas-container") && container.querySelector("div.canvas-container") instanceof HTMLDivElement) {
+            this.canvasContainer = container.querySelector("div.canvas-container") as HTMLDivElement;
+        } else {
+            this.canvasContainer = document.createElement("div");
+            this.canvasContainer.setAttribute("class", "canvas-container");
+            contentElement.appendChild(this.canvasContainer);
+        }
+
 
         this.config = DEFAULT_ARCH_CONFIG;
         this.calculator = ArchCalculatorFactory.create(this.config.type);
@@ -1432,7 +1428,7 @@ class ArchApplication {
             default:
                 throw new Error(`Unrecognised arch type: ${this.config.type}`);
         }
-        this.axisRenderer = new AxisRenderer(canvasContainer);
+        this.axisRenderer = new AxisRenderer(this.canvasContainer);
         this.toolbar = new ToolbarManager(toolbarElement, TOOLBAR_FIELDS);
         this.toolbar.populateToolbar();
 
@@ -1445,7 +1441,7 @@ class ArchApplication {
         });
         this.resizeObserver.observe(this.container);
 
-        console.log(`${this.calculator} - ${this.renderer} - ${this.axisRenderer} - ${this.toolbar}`);
+        this.margin = DEFAULT_CANVAS_MARGIN;
     }
 
     setArchType(type: ArchType): void {
@@ -1468,22 +1464,18 @@ class ArchApplication {
             case "radial":
             case "semicircle":
             case "bullseye":
-                console.log("NOT A FLAT ARCH");
                 this.renderer = new RadialArchRenderer(this.canvas);
                 this.calculator = new RadialArchCalculator();
-                console.log(`renderer is ${this.renderer instanceof RadialArchRenderer ? "" : "not "}a RadialArchRenderer`);
-                console.log(`calculator is ${this.calculator instanceof RadialArchCalculator ? "" : "not "}a RadialArchCalculator`);
                 break;
             default:
                 throw new Error(`Unrecognised arch type: ${this.config.type}`);
         }
 
+        console.log(`B Margin: ${globalThis.Arch.app.margin} from ${this.constructor.name}`);
         this.calculateAndRender();
     }
 
     private calculateAndRender(): void {
-        console.log(`renderer is ${this.renderer instanceof RadialArchRenderer ? "" : "not "}a RadialArchRenderer`);
-        console.log(`calculator is ${this.calculator instanceof RadialArchCalculator ? "" : "not "}a RadialArchCalculator`);
         if (this.config.type === "flat" && this.calculator instanceof FlatArchCalculator &&
             this.renderer instanceof FlatArchRenderer) {
             const parameters: FlatArchParameters = this.calculator.calculateParameters(this.config as ArchConfig);
@@ -1494,9 +1486,13 @@ class ArchApplication {
             const parameters: RadialArchParameters = this.calculator.calculateParameters(this.config as ArchConfig);
             this.renderer.drawOutline(parameters);
         } else {
-            console.log(`Type: ${this.config.type}, this.calculator instanceof RadialArchCalculator: ${this.calculator instanceof RadialArchCalculator}`);
             throw new Error(`Unrecognised arch type: ${this.config.type}`);
         }
+
+        console.log(`C Margin: ${globalThis.Arch.app.margin} from ${this.constructor.name}`);
+        this.axisRenderer.updateAxes(this.canvas.width, this.canvas.height, this.margin);
+        console.log(`D Margin: ${globalThis.Arch.app.margin} from ${this.constructor.name}`);
+        this.adjustViewport();
     }
 
     private setupEventListeners(): void {
@@ -1524,6 +1520,37 @@ class ArchApplication {
                 this.refresh();
             });
         }
+    }
+
+    adjustViewport() {
+        console.log("adjustViewport");
+        const windowHeight: number = document.body.getBoundingClientRect().height;
+        const titleBarHeight: number = globalThis.Arch.titlebar.getBoundingClientRect().height;
+        const toolbarHeight: number = globalThis.Arch.app.toolbar.toolbarElement.getBoundingClientRect().height;
+        const axesToggleBox: HTMLFormElement | null = this.container.querySelector("#axes-toggle-box");
+        // const realCanvasHeight = this.canvasContainer.getBoundingClientRect().height;
+
+        let maxHeight;
+        if (this.container.classList.contains("maximised")) {
+            maxHeight = windowHeight - titleBarHeight - toolbarHeight;
+        } else {
+            maxHeight = windowHeight * 0.6 - titleBarHeight - toolbarHeight;
+        }
+
+        var scale = Math.min(
+            globalThis.Arch.content.getBoundingClientRect().width / this.canvas.width,
+            maxHeight / this.canvas.height
+        );
+
+        this.canvasContainer.style.width = `${this.canvas.width}px`;
+        this.canvasContainer.style.height = `${this.canvas.height}px`;
+        this.canvasContainer.style.transform = `scale(${scale})`;
+        this.canvasContainer.style.transformOrigin = "top left";
+
+        if (!axesToggleBox) {
+            return;
+        }
+        axesToggleBox.style.transform = `scale(${1 / scale})`;
     }
 }
 
