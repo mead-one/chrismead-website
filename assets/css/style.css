@@ -401,7 +401,7 @@ div.axis-label {
     background-color: white;
 }
 
-div#axes-toggle-box {
+form#axes-toggle-box {
     position: absolute;
     border: 1px solid black;
     padding: .5em;

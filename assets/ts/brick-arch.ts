@@ -2,7 +2,7 @@ import { Project/*, ToolbarItem */} from "./projects";
 document.addEventListener("DOMContentLoaded", initialise);
 
 const DEFAULT_CANVAS_MARGIN = 50;
-const DEFAULT_ARCH_CONFIG: FlatArchConfig = {
+const DEFAULT_ARCH_CONFIG: ArchConfig = {
     type: "flat",
     opening: 800,
     height: 210,
@@ -50,6 +50,7 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
                 ]
             }
         ],
+        min: 1
     },
     {
         id: "joint-size-toolbar-item",
@@ -67,7 +68,8 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
         type: "number",
         defaultValue: DEFAULT_ARCH_CONFIG.opening,
         visibleFor: ["flat", "radial", "semicircle", "bullseye"],
-        min: 100
+        min: 100,
+        step: 50
     },
     {
         id: "height-toolbar-item",
@@ -76,7 +78,8 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
         type: "number",
         defaultValue: DEFAULT_ARCH_CONFIG.height,
         visibleFor: ["flat", "radial", "semicircle", "bullseye"],
-        min: 50
+        min: 50,
+        step: 5
     },
     {
         id: "skew-toolbar-item",
@@ -84,7 +87,7 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
         label: "Skew: ",
         type: "number",
         defaultValue: DEFAULT_ARCH_CONFIG.skew,
-        visibleFor: ["flat", "radial"],
+        visibleFor: ["flat"],
         min: 1,
         additional: [
             {
@@ -138,7 +141,8 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
                     { value: "mm", label: "Skew (mm)" }
                 ]
             }
-        ]
+        ],
+        min: 1
     }
 ]
 
@@ -155,7 +159,7 @@ function initialise() {
     }
 
     globalThis.Arch = new Arch(container);
-    globalThis.Arch.app.refresh();
+    // globalThis.Arch.app.refresh();
 }
 
 type Point = [number, number];
@@ -261,19 +265,17 @@ interface ArchConfig {
     brickDivisionMethod: BrickDivisionMethod;
     brickWidth?: number;
     brickCount?: number;
-}
 
-interface FlatArchConfig extends ArchConfig {
+    // For flat arches
     baseRise?: number;
     topRise?: number;
-    skewUnit: SkewUnit;
-    skew: number;
-}
+    skewUnit?: SkewUnit;
+    skew?: number;
 
-interface RadialArchConfig extends ArchConfig {
+    // For radial arches
     riseOrSkew?: RiseOrSkew;
     rise?: number;
-    skew?: number;
+    //skew?: number;
 }
 
 // type BrickConfig = {
@@ -314,6 +316,7 @@ interface FlatArchParameters extends ArchParameters {
 }
 
 interface RadialArchParameters extends ArchParameters {
+    riseOrSkew?: RiseOrSkew;
     rise: number;
     origin: Point | null;
     baseRadius: number | null;
@@ -357,7 +360,7 @@ class FlatArchCalculator extends ArchCalculator {
         super();
     }
 
-    calculateParameters(config: FlatArchConfig): ArchParameters {
+    calculateParameters(config: ArchConfig): FlatArchParameters {
         /*
             * Required fields:
             * opening
@@ -371,13 +374,24 @@ class FlatArchCalculator extends ArchCalculator {
             * topRise
         */
 
+        if (!config.skew) {
+            throw new Error("Missing skew value");
+        }
+
+        console.log(`Skew: ${config.skew}${config.skewUnit}`);
+        console.log(`Config: ${JSON.stringify(config)}`);
         let skewLength: number, skewAngle: number, baseFullAngle: number | null;
-        if (config.skewUnit === "deg") {
-            skewAngle = this.geometry.degToRad(config.skew);
-            skewLength = this.degToLength(config.skew, config.height);
-        } else {
-            skewLength = config.skew;
-            skewAngle = this.lengthToRad(config.skew, config.height);
+        switch (config.skewUnit) {
+            case "deg":
+                skewAngle = this.geometry.degToRad(config.skew);
+                skewLength = this.degToLength(config.skew, config.height);
+                break;
+            case "mm":
+                skewLength = config.skew;
+                skewAngle = this.lengthToRad(config.skew, config.height);
+                break;
+            default:
+                throw new Error(`Unrecognised skew unit: ${config.skewUnit}`);
         }
         let fullLength = config.opening + 2 * skewLength;
 
@@ -402,6 +416,7 @@ class FlatArchCalculator extends ArchCalculator {
 
         let brickCount: number, topFullAngle: number | null, topBrickAngle: number | null, topBrickWidth: number, topJointAngle: number | null,
             topFullArcLength: number | null, topJointArcLength: number | null;
+
         switch (config.brickDivisionMethod) {
             case "width":
                 if (!config.brickWidth) throw new Error("Missing brick width");
@@ -471,8 +486,10 @@ class FlatArchCalculator extends ArchCalculator {
             baseJointAngle = this.geometry.arcLengthToArcAngle(baseJointArcLength, baseRadius);
         }
 
-        let drawingWidth = skewLength ? config.opening + 2 * skewLength : config.opening;
-        let drawingHeight = config.topRise ? config.height + config.topRise : config.height;
+        let drawingWidth = config.opening + 2 * skewLength + 2 * globalThis.Arch.app.renderer.margin;
+        let drawingHeight = config.topRise ?
+            config.height + config.topRise + 2 * globalThis.Arch.app.renderer.margin :
+            config.height + 2 * globalThis.Arch.app.renderer.margin;
 
         const params: FlatArchParameters = {
             type: config.type,
@@ -531,7 +548,7 @@ class RadialArchCalculator extends ArchCalculator {
         super();
     }
 
-    calculateParameters(config: RadialArchConfig): ArchParameters {
+    calculateParameters(config: ArchConfig): RadialArchParameters {
         let rise: number, baseRadius: number | null, topRadius: number | null, skewAngle: number, skewLength: number,
             origin: Point | null, fullAngle: number | null, drawingWidth: number, drawingHeight: number;
         switch (config.type) {
@@ -603,7 +620,7 @@ class RadialArchCalculator extends ArchCalculator {
                         }
                         break;
                     default:
-                        console.error("Unrecognised rise/skew choice on radial arch.");
+                        console.error(`Unrecognised rise/skew choice on radial arch: ${config.riseOrSkew}`);
                         baseRadius = topRadius = origin = null;
                         rise = skewAngle = skewLength = fullAngle = 0
                 }
@@ -724,6 +741,7 @@ class RadialArchCalculator extends ArchCalculator {
             topBrickAngle: topBrickAngle ? topBrickAngle : undefined,
             topJointAngle: topJointAngle ? topJointAngle : undefined,
 
+            riseOrSkew: config.riseOrSkew,
             rise: rise,
             origin: origin ? origin : null,
             baseRadius: baseRadius ? baseRadius : null,
@@ -766,16 +784,16 @@ interface ToolbarField {
     additional?: Array<ToolbarField>; // For additional element on same line
     min?: number;
     max?: number;
+    step?: number;
 }
 
 class ToolbarManager {
-    private fields: ToolbarField[];
-    private toolbarElement: HTMLFormElement;
+    fields: ToolbarField[];
+    toolbarElement: HTMLFormElement;
 
     constructor(toolbarElement: HTMLFormElement, fields: Array<ToolbarField>) {
         this.toolbarElement = toolbarElement;
         this.fields = fields;
-        this.populateToolbar();
     }
 
     populateToolbar(): void {
@@ -801,10 +819,12 @@ class ToolbarManager {
                     inputElement.setAttribute("id", field.id);
                     inputElement.setAttribute("name", field.name);
                     inputElement.setAttribute("value", field.defaultValue ? field.defaultValue.toString() : "0");
-                    if (field.hasOwnProperty("min") && field.min)
+                    if (field.hasOwnProperty("min") && field.min != undefined)
                         inputElement.setAttribute("min", field.min.toString());
-                    if (field.hasOwnProperty("max") && field.max)
+                    if (field.hasOwnProperty("max") && field.max != undefined)
                         inputElement.setAttribute("max", field.max.toString());
+                    if (field.hasOwnProperty("step") && field.step != undefined)
+                        inputElement.setAttribute("step", field.step.toString());
 
                     fieldElement.appendChild(labelElement);
                     fieldElement.appendChild(inputElement);
@@ -857,10 +877,12 @@ class ToolbarManager {
                             additionalElement.setAttribute("id", additionalField.id);
                             additionalElement.setAttribute("name", additionalField.name);
                             additionalElement.setAttribute("value", additionalField.defaultValue ? additionalField.defaultValue.toString() : "0");
-                            if (additionalField.hasOwnProperty("min") && additionalField.min)
+                            if (additionalField.hasOwnProperty("min") && additionalField.min != undefined)
                                 additionalElement.setAttribute("min", additionalField.min.toString());
-                            if (additionalField.hasOwnProperty("max") && additionalField.max)
+                            if (additionalField.hasOwnProperty("max") && additionalField.max != undefined)
                                 additionalElement.setAttribute("max", additionalField.max.toString());
+                            if (additionalField.hasOwnProperty("step") && additionalField.step != undefined)
+                                additionalElement.setAttribute("step", additionalField.step.toString());
                             fieldElement.appendChild(additionalLabelElement);
                             fieldElement.appendChild(additionalElement);
                             break;
@@ -921,18 +943,166 @@ class ToolbarManager {
 
     // ########################## PLACEHOLDER ##########################
     getFormData(): Record<string, any> {
+        const elements: HTMLFormControlsCollection = this.toolbarElement.elements;
         const formData: Record<string, any> = {};
+
         for (let field of this.fields) {
-            const fieldElement = this.toolbarElement.querySelector(`#${field.id}`);
-            if (fieldElement instanceof HTMLInputElement) {
-                formData[field.name] = fieldElement.value;
-            } else if (fieldElement instanceof HTMLSelectElement) {
-                formData[field.name] = fieldElement.value;
+            if (!(elements.hasOwnProperty(field.name))) {
+                continue;
+            }
+
+            const fieldElement: Element | RadioNodeList | null = elements.namedItem(field.name);
+            if (!fieldElement) {
+                continue;
             } else if (fieldElement instanceof HTMLInputElement) {
-                formData[field.name] = fieldElement.checked;
+                if (fieldElement.type === "radio") {
+                    formData[field.name] = fieldElement.checked;
+                    continue;
+                }
+            }
+
+            switch (field.type) {
+                case "number":
+                    if (!(fieldElement instanceof HTMLInputElement)) {
+                        throw new Error(`Field ${field.name} is not an input element.`);
+                    }
+                    formData[field.name] = fieldElement.value;
+                    break;
+                case "select":
+                    if (!(fieldElement instanceof HTMLSelectElement)) {
+                        throw new Error(`Field ${field.name} is not a select element.`);
+                    }
+                    formData[field.name] = fieldElement.value;
+                    break;
+                case "checkbox":
+                    if (!(fieldElement instanceof HTMLInputElement) || fieldElement.type !== "checkbox") {
+                        throw new Error(`Field ${field.name} is not a checkbox element.`);
+                    }
+                    formData[field.name] = fieldElement.checked;
+                    break;
+                default:
+                    throw new Error(`Unrecognised field type: ${field.type}`);
+            }
+
+            if (field.hasOwnProperty("additional") && field.additional) {
+                for (let additionalField of field.additional) {
+                    const additionalFieldElement: Element | RadioNodeList | null = elements.namedItem(additionalField.name);
+                    if (!additionalFieldElement) {
+                        continue;
+                    } else if (additionalFieldElement instanceof HTMLInputElement) {
+                        if (additionalFieldElement.type === "radio") {
+                            formData[additionalField.name] = additionalFieldElement.checked;
+                            continue;
+                        }
+                    }
+
+                    console.log(`Additional field: ${additionalField.name}`);
+                    switch (additionalField.type) {
+                        case "number":
+                            if (!(additionalFieldElement instanceof HTMLInputElement)) {
+                                throw new Error(`Field ${additionalField.name} is not an input element.`);
+                            }
+                            formData[additionalField.name] = additionalFieldElement.value;
+                            break;
+                        case "select":
+                            if (!(additionalFieldElement instanceof HTMLSelectElement)) {
+                                throw new Error(`Field ${additionalField.name} is not a select element.`);
+                            }
+                            formData[additionalField.name] = additionalFieldElement.value;
+                            break;
+                        case "checkbox":
+                            if (!(additionalFieldElement instanceof HTMLInputElement) || additionalFieldElement.type !== "checkbox") {
+                                throw new Error(`Field ${additionalField.name} is not a checkbox element.`);
+                            }
+                            formData[additionalField.name] = additionalFieldElement.checked;
+                            break;
+                        default:
+                            throw new Error(`Unrecognised field type: ${additionalField.type}`);
+                    }
+                }
             }
         }
+
+        console.log(`Radial form data: ${JSON.stringify(formData)}`);
+
         return formData;
+    }
+
+    readConfig(formData: Record<string, any>): ArchConfig {
+        let brickWidth: number | undefined, brickCount: number | undefined;
+
+        switch (formData["type"]) {
+            case "flat":
+                brickWidth = brickCount = undefined;
+                switch (formData["brick-division-select"]) {
+                    case "width":
+                        brickWidth = formData["brick-width-or-count"];
+                        break;
+                    case "count":
+                        brickCount = formData["brick-width-or-count"];
+                        break;
+                    default:
+                        throw new Error(`Unrecognised brick division method: ${formData.brickDivisionMethod}`);
+                }
+
+                const config: ArchConfig = {
+                    type: "flat",
+                    opening: parseInt(formData["opening"]),
+                    height: parseInt(formData["height"]),
+                    jointSize: parseInt(formData["joint-size"]),
+                    brickDivisionMethod: formData["brick-division-select"],
+                    brickWidth: brickWidth,
+                    brickCount: brickCount,
+                    baseRise: parseInt(formData["base-rise"]),
+                    topRise: parseInt(formData["top-rise"]),
+                    skewUnit: formData["skew-units-select"],
+                    skew: parseInt(formData["skew"]),
+                }
+                console.log(`Config: ${JSON.stringify(config)}`);
+                return config;
+            case "radial":
+            case "semicircle":
+            case "bullseye":
+                let rise: number | undefined, skew: number | undefined;
+                brickWidth = brickCount = undefined;
+                switch (formData["rise-or-skew-select"]) {
+                    case "rise":
+                        rise = parseInt(formData["rise-or-skew"]);
+                        break;
+                    case "deg":
+                    case "mm":
+                        skew = parseInt(formData["rise-or-skew"]);
+                        break;
+                    default:
+                        throw new Error(`Unrecognised rise/skew choice on radial arch: ${formData["rise-or-skew"]}`);
+                }
+
+                switch (formData["brick-division-select"]) {
+                    case "width":
+                        brickWidth = parseInt(formData["brick-width-or-count"]);
+                        break;
+                    case "count":
+                        brickCount = parseInt(formData["brick-width-or-count"]);
+                        break;
+                    default:
+                        throw new Error(`Unrecognised brick division method: ${formData["brick-division-select"]}`);
+                }
+
+                return {
+                    type: formData.type,
+                    opening: parseInt(formData["opening"]),
+                    height: parseInt(formData["height"]),
+                    jointSize: parseInt(formData["joint-size"]),
+                    brickDivisionMethod: formData["brick-division-select"],
+                    brickWidth: brickWidth,
+                    brickCount: brickCount,
+                    riseOrSkew: formData["rise-or-skew-select"],
+                    rise: rise,
+                    skew: skew
+                }
+            default:
+                throw new Error(`Unrecognised arch type: ${formData.type}`);
+        }
     }
 
     // ########################## PLACEHOLDER ##########################
@@ -947,7 +1117,7 @@ class ToolbarManager {
 abstract class ArchRenderer {
     protected canvas: HTMLCanvasElement;
     protected ctx: CanvasRenderingContext2D;
-    protected margin: number;
+    margin: number;
     protected geometry = new GeometryUtils();
 
     constructor(canvas: HTMLCanvasElement) {
@@ -955,6 +1125,7 @@ abstract class ArchRenderer {
         this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
         this.margin = DEFAULT_CANVAS_MARGIN;
         this.geometry = new GeometryUtils();
+
     }
 
     render(layout: BrickLayout/*, parameters: ArchParameters*/): void {
@@ -976,7 +1147,7 @@ abstract class ArchRenderer {
         }
     }
 
-    abstract drawOutline(parameters: ArchParameters): void;
+    abstract drawOutline(parameters: FlatArchParameters | RadialArchParameters): void;
 
     adjustCanvas(width: number, height: number): void {
         this.margin = Math.max(Math.round(height / 300), Math.round(width / 500)) * 50;
@@ -990,32 +1161,61 @@ class FlatArchRenderer extends ArchRenderer {
         super(canvas);
     }
 
-    drawOutline(parameters: FlatArchParameters): void {
+    drawOutline(parameters: FlatArchParameters, clear?: boolean): void {
+        console.log(`Drawing flat arch outline: ${JSON.stringify(parameters)}`);
         if (parameters.baseRise == null || parameters.topRise == null ||
-            parameters.baseOrigin == null || parameters.baseRadius == null ||
-            parameters.topOrigin == null || parameters.topRadius == null ||
             parameters.skewAngle == null || parameters.skewLength == null ||
-            parameters.height == null || parameters.baseFullAngle == null ||
-            parameters.topFullAngle == null) {
+            parameters.height == null) {
             throw new Error("Missing required parameters.");
         }
 
+        if (clear) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+
+        console.log(`Parameters: ${JSON.stringify(parameters)}`);
+
+        this.canvas.width = parameters.drawingWidth;
+        this.canvas.height = parameters.drawingHeight;
+
+        this.ctx.resetTransform();
         this.ctx.translate(this.margin, this.margin);
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        console.log(`Skew length: ${parameters.skewLength} (${typeof parameters.skewLength}), Opening: ${parameters.opening} (${typeof parameters.opening}), Height: ${parameters.height} (${typeof parameters.height})`);
+        console.log(`Top length: ${parameters.skewLength * 2 + parameters.opening} (${typeof (parameters.skewLength * 2 + parameters.opening)}), Top height: ${parameters.height} (${typeof parameters.height})`);
+        let bl: Point, br: Point, tr: Point, tl: Point;
+        bl = [parameters.skewLength, 0];
+        br = [parameters.skewLength + Number(parameters.opening), 0];
+        tr = [parameters.skewLength * 2 + Number(parameters.opening), parameters.height];
+        tl = [0, parameters.height];
+
+        console.log(`Bottom left: ${JSON.stringify(bl)}`);
+        console.log(`Bottom right: ${JSON.stringify(br)}`);
+        console.log(`Top right: ${JSON.stringify(tr)}`);
+        console.log(`Top left: ${JSON.stringify(tl)}`);
 
         this.ctx.beginPath();
-        this.ctx.lineTo(parameters.skewLength, 0);
+        this.ctx.lineTo(bl[0], bl[1]);
         if (parameters.baseRise < 1) {
-            this.ctx.lineTo(parameters.skewLength + parameters.opening, 0);
+            this.ctx.lineTo(br[0], br[1]);
         } else {
+            if (parameters.baseOrigin == null || parameters.baseRadius == null ||
+               parameters.baseFullAngle == null) {
+                throw new Error("Missing required parameters.");
+            }
             this.ctx.arc(parameters.baseOrigin[0], parameters.baseOrigin[1], parameters.baseRadius, (Math.PI / 2) + (parameters.baseFullAngle / 2), (Math.PI / 2) - (parameters.baseFullAngle / 2), true);
         }
-        this.ctx.lineTo(parameters.opening + parameters.skewLength * 2, parameters.height);
+        this.ctx.lineTo(tr[0], tr[1]);
         if (parameters.topRise < 1) {
-            this.ctx.lineTo(0, parameters.height);
+            this.ctx.lineTo(tl[0], tl[1]);
         } else {
+            if (parameters.topOrigin == null || parameters.topRadius == null ||
+                parameters.topFullAngle == null) {
+                throw new Error("Missing required parameters.");
+            }
             this.ctx.arc(parameters.topOrigin[0], parameters.topOrigin[1], parameters.topRadius, Math.PI / 2 - (parameters.topFullAngle / 2), Math.PI / 2 + (parameters.topFullAngle / 2));
         }
+
         this.ctx.closePath();
         this.ctx.stroke();
     }
@@ -1027,6 +1227,7 @@ class RadialArchRenderer extends ArchRenderer {
     }
 
     drawOutline(parameters: RadialArchParameters): void {
+        console.log("drawOutline");
         if (parameters.baseBrickAngle == null || parameters.topBrickAngle == null ||
             parameters.baseJointAngle == null || parameters.topJointAngle == null ||
             parameters.origin == null || parameters.baseRadius == null ||
@@ -1037,86 +1238,113 @@ class RadialArchRenderer extends ArchRenderer {
             throw new Error("Missing required parameters.");
         }
 
-        // if (!(this.ctx instanceof CanvasRenderingContext2D) || !parameters.origin || !parameters.baseRadius || !parameters.topRadius) {
-        //     return;
-        // }
+        this.ctx.resetTransform();
         this.ctx.translate(this.margin, this.margin);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    
-        // Temporary logic until individual pieces are added
-        switch (parameters.type) {
-            case "radial":
-                this.ctx.beginPath();
-                let point0 = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.baseRadius, (Math.PI / 2) + parameters.skewAngle);
-                this.ctx.lineTo(point0[0], point0[1]);
-                this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.baseRadius, (Math.PI / 2) + parameters.skewAngle, (Math.PI / 2) - parameters.skewAngle, true);
-                let point2 = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.topRadius, (Math.PI / 2) - parameters.skewAngle);
-                this.ctx.lineTo(point2[0], point2[1]);
-                // this.ctx.lineTo(parameters.skewLength * 2 + parameters.opening, Math.sin(parameters.skewAngle) * parameters.height);
-                this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.topRadius, Math.PI / 2 - parameters.skewAngle, Math.PI / 2 + parameters.skewAngle);
-                this.ctx.closePath();
-                this.ctx.stroke();
-    
-                break;
-            case "semicircle":
-                this.ctx.beginPath();
-                this.ctx.lineTo(0,0);
-                this.ctx.lineTo(parameters.height, 0);
-                this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.baseRadius, (Math.PI / 2) + (parameters.fullAngle / 2), (Math.PI / 2) - (parameters.fullAngle / 2), true);
-                this.ctx.lineTo(2 * parameters.topRadius, 0);
-                this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.topRadius, (Math.PI / 2) - (parameters.fullAngle / 2), (Math.PI / 2) + (parameters.fullAngle / 2));
-                this.ctx.stroke();
-                break;
-            case "bullseye":
-                this.ctx.beginPath();
-                this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.baseRadius, 0, 2 * Math.PI);
-                this.ctx.stroke();
-    
-                this.ctx.beginPath();
-                this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.topRadius, 0, 2 * Math.PI);
-                this.ctx.stroke();
-                break;
-            default:
-        }
-    
-        console.log(`Skew angle: ${this.geometry.radToDeg(parameters.skewAngle)}`);
-        if (parameters.baseBrickAngle == null || parameters.topBrickAngle == null) {
-            return;
-        }
-        let currentBaseAngle = (Math.PI / 2) + parameters.skewAngle - (parameters.baseBrickAngle / 2);
-        let currentTopAngle = (Math.PI / 2) + parameters.skewAngle - (parameters.topBrickAngle / 2);
-        for (let i = 0; i < parameters.brickCount; i++) {
-            let bc = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.baseRadius, currentBaseAngle);
-            let bl = this.geometry.calculateEndpoint(bc[0], bc[1], parameters.baseBrickWidth / 2, currentBaseAngle + (Math.PI / 2));
-            let br = this.geometry.calculateEndpoint(bc[0], bc[1], parameters.baseBrickWidth / 2, currentBaseAngle - (Math.PI / 2));
-            let tc = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.topRadius, currentTopAngle);
-            let tl = this.geometry.calculateEndpoint(tc[0], tc[1], parameters.topBrickWidth / 2, currentTopAngle + (Math.PI / 2));
-            let tr = this.geometry.calculateEndpoint(tc[0], tc[1], parameters.topBrickWidth / 2, currentTopAngle - (Math.PI / 2));
-    
-            this.ctx.beginPath();
-            this.ctx.strokeStyle = "red";
-            this.ctx.setLineDash([]);
-            this.ctx.lineTo(bl[0], bl[1]);
-            this.ctx.lineTo(tl[0], tl[1]);
-            this.ctx.stroke();
-    
-            this.ctx.beginPath();
-            this.ctx.strokeStyle = "blue";
-            this.ctx.setLineDash([5, 15]);
-            this.ctx.lineTo(bc[0], bc[1]);
-            this.ctx.lineTo(tc[0], tc[1]);
-            this.ctx.stroke();
-    
-            this.ctx.beginPath();
-            this.ctx.strokeStyle = "red";
-            this.ctx.setLineDash([]);
-            this.ctx.lineTo(br[0], br[1]);
-            this.ctx.lineTo(tr[0], tr[1]);
-            this.ctx.stroke();
-    
-            currentBaseAngle -= parameters.baseBrickAngle + parameters.baseJointAngle;
-            currentTopAngle -= parameters.topBrickAngle + parameters.topJointAngle;
-        }
+
+        this.canvas.width = parameters.drawingWidth;
+        this.canvas.height = parameters.drawingHeight;
+
+        let bl: Point, br: Point, tr: Point, tl: Point;
+        bl = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.baseRadius, Math.PI / 2 - parameters.skewAngle);
+        br = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.baseRadius, Math.PI / 2 + parameters.skewAngle);
+        tr = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.topRadius, Math.PI / 2 + parameters.skewAngle);
+        tl = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.topRadius, Math.PI / 2 - parameters.skewAngle);
+
+        let startAngle: number = Math.PI / 2 - parameters.skewAngle,
+            endAngle: number = Math.PI / 2 + parameters.skewAngle;
+
+        this.ctx.beginPath();
+        this.ctx.lineTo(bl[0], bl[1]);
+        console.log(`Radial parameters: ${JSON.stringify(parameters)}`);
+        this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.baseRadius, startAngle, endAngle, false);
+        // this.ctx.lineTo(br[0], br[1]);
+        this.ctx.lineTo(tr[0], tr[1]);
+        this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.topRadius, endAngle, startAngle, true);
+        this.ctx.lineTo(bl[0], bl[1]);
+        this.ctx.closePath();
+        this.ctx.stroke();
+
+        // // if (!(this.ctx instanceof CanvasRenderingContext2D) || !parameters.origin || !parameters.baseRadius || !parameters.topRadius) {
+        // //     return;
+        // // }
+        // this.ctx.translate(this.margin, this.margin);
+        // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        //
+        // // Temporary logic until individual pieces are added
+        // switch (parameters.type) {
+        //     case "radial":
+        //         this.ctx.beginPath();
+        //         let point0 = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.baseRadius, (Math.PI / 2) + parameters.skewAngle);
+        //         this.ctx.lineTo(point0[0], point0[1]);
+        //         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.baseRadius, (Math.PI / 2) + parameters.skewAngle, (Math.PI / 2) - parameters.skewAngle, true);
+        //         let point2 = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.topRadius, (Math.PI / 2) - parameters.skewAngle);
+        //         this.ctx.lineTo(point2[0], point2[1]);
+        //         // this.ctx.lineTo(parameters.skewLength * 2 + parameters.opening, Math.sin(parameters.skewAngle) * parameters.height);
+        //         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.topRadius, Math.PI / 2 - parameters.skewAngle, Math.PI / 2 + parameters.skewAngle);
+        //         this.ctx.closePath();
+        //         this.ctx.stroke();
+        //
+        //         break;
+        //     case "semicircle":
+        //         this.ctx.beginPath();
+        //         this.ctx.lineTo(0,0);
+        //         this.ctx.lineTo(parameters.height, 0);
+        //         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.baseRadius, (Math.PI / 2) + (parameters.fullAngle / 2), (Math.PI / 2) - (parameters.fullAngle / 2), true);
+        //         this.ctx.lineTo(2 * parameters.topRadius, 0);
+        //         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.topRadius, (Math.PI / 2) - (parameters.fullAngle / 2), (Math.PI / 2) + (parameters.fullAngle / 2));
+        //         this.ctx.stroke();
+        //         break;
+        //     case "bullseye":
+        //         this.ctx.beginPath();
+        //         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.baseRadius, 0, 2 * Math.PI);
+        //         this.ctx.stroke();
+        //
+        //         this.ctx.beginPath();
+        //         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.topRadius, 0, 2 * Math.PI);
+        //         this.ctx.stroke();
+        //         break;
+        //     default:
+        // }
+        //
+        // console.log(`Skew angle: ${this.geometry.radToDeg(parameters.skewAngle)}`);
+        // if (parameters.baseBrickAngle == null || parameters.topBrickAngle == null) {
+        //     return;
+        // }
+        // let currentBaseAngle = (Math.PI / 2) + parameters.skewAngle - (parameters.baseBrickAngle / 2);
+        // let currentTopAngle = (Math.PI / 2) + parameters.skewAngle - (parameters.topBrickAngle / 2);
+        // for (let i = 0; i < parameters.brickCount; i++) {
+        //     let bc = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.baseRadius, currentBaseAngle);
+        //     let bl = this.geometry.calculateEndpoint(bc[0], bc[1], parameters.baseBrickWidth / 2, currentBaseAngle + (Math.PI / 2));
+        //     let br = this.geometry.calculateEndpoint(bc[0], bc[1], parameters.baseBrickWidth / 2, currentBaseAngle - (Math.PI / 2));
+        //     let tc = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.topRadius, currentTopAngle);
+        //     let tl = this.geometry.calculateEndpoint(tc[0], tc[1], parameters.topBrickWidth / 2, currentTopAngle + (Math.PI / 2));
+        //     let tr = this.geometry.calculateEndpoint(tc[0], tc[1], parameters.topBrickWidth / 2, currentTopAngle - (Math.PI / 2));
+        //
+        //     this.ctx.beginPath();
+        //     this.ctx.strokeStyle = "red";
+        //     this.ctx.setLineDash([]);
+        //     this.ctx.lineTo(bl[0], bl[1]);
+        //     this.ctx.lineTo(tl[0], tl[1]);
+        //     this.ctx.stroke();
+        //
+        //     this.ctx.beginPath();
+        //     this.ctx.strokeStyle = "blue";
+        //     this.ctx.setLineDash([5, 15]);
+        //     this.ctx.lineTo(bc[0], bc[1]);
+        //     this.ctx.lineTo(tc[0], tc[1]);
+        //     this.ctx.stroke();
+        //
+        //     this.ctx.beginPath();
+        //     this.ctx.strokeStyle = "red";
+        //     this.ctx.setLineDash([]);
+        //     this.ctx.lineTo(br[0], br[1]);
+        //     this.ctx.lineTo(tr[0], tr[1]);
+        //     this.ctx.stroke();
+        //
+        //     currentBaseAngle -= parameters.baseBrickAngle + parameters.baseJointAngle;
+        //     currentTopAngle -= parameters.topBrickAngle + parameters.topJointAngle;
+        // }
     }
 }
 
@@ -1125,6 +1353,7 @@ class AxisRenderer {
     private canvas: HTMLCanvasElement;
     private axes: HTMLDivElement;
     private grid: HTMLDivElement;
+    private toggleBox: HTMLFormElement;
     private margin: number;
 
     constructor (canvasContainer: HTMLDivElement) {
@@ -1151,6 +1380,39 @@ class AxisRenderer {
             this.grid = document.createElement("div");
             this.grid.setAttribute("id", "arch-grid");
             this.canvasContainer.appendChild(this.grid);
+        }
+
+        this.toggleBox = this.canvasContainer.querySelector("form#axes-toggle-box") as HTMLFormElement;
+
+        if (!(this.toggleBox instanceof HTMLDivElement)) {
+            this.toggleBox = document.createElement("form");
+            this.toggleBox.setAttribute("id", "axes-toggle-box");
+
+            const axesVisibilityLabel: HTMLLabelElement = document.createElement("label");
+            axesVisibilityLabel.setAttribute("for", "axes-visibility-chk");
+            axesVisibilityLabel.innerText = "Axes";
+            this.toggleBox.appendChild(axesVisibilityLabel);
+
+            const axesVisibilityInput: HTMLInputElement = document.createElement("input");
+            axesVisibilityInput.setAttribute("type", "checkbox");
+            axesVisibilityInput.setAttribute("id", "axes-visibility-chk");
+            axesVisibilityInput.setAttribute("name", "axes");
+            axesVisibilityInput.setAttribute("checked", "true");
+            this.toggleBox.appendChild(axesVisibilityInput);
+
+            const gridVisibilityLabel: HTMLLabelElement = document.createElement("label");
+            gridVisibilityLabel.setAttribute("for", "grid-visibility-chk");
+            gridVisibilityLabel.innerText = "Grid";
+            this.toggleBox.appendChild(gridVisibilityLabel);
+
+            const gridVisibilityInput: HTMLInputElement = document.createElement("input");
+            gridVisibilityInput.setAttribute("type", "checkbox");
+            gridVisibilityInput.setAttribute("id", "grid-visibility-chk");
+            gridVisibilityInput.setAttribute("name", "grid");
+            gridVisibilityInput.setAttribute("checked", "true");
+            this.toggleBox.appendChild(gridVisibilityInput);
+
+            this.canvasContainer.appendChild(this.toggleBox);
         }
 
         this.margin = DEFAULT_CANVAS_MARGIN;
@@ -1260,27 +1522,42 @@ class ArchCalculatorFactory {
 class ArchApplication {
     private container: HTMLDivElement;
     canvas: HTMLCanvasElement;
-    private config: ArchConfig;
+    config: ArchConfig;
     private calculator: ArchCalculator;
-    private renderer: FlatArchRenderer | RadialArchRenderer;
+    renderer: FlatArchRenderer | RadialArchRenderer;
     private axisRenderer: AxisRenderer;
     private toolbar: ToolbarManager;
+    resizeObserver: ResizeObserver;
 
     constructor(container: HTMLDivElement) {
         this.container = container;
+        let contentElement: HTMLDivElement | null = container.querySelector("div.project-content");
         let toolbarElement: HTMLFormElement | null = container.querySelector("form#arch-parameters-form");
+        let canvasContainer: HTMLDivElement | null = container.querySelector("div.canvas-container");
         let canvas: HTMLCanvasElement | null = container.querySelector("canvas#arch-drawing-area");
+
+        if (!contentElement || !(contentElement instanceof HTMLDivElement)) {
+            contentElement = document.createElement("div");
+            contentElement.setAttribute("class", "project-content");
+            this.container.appendChild(contentElement);
+        }
 
         if (!toolbarElement || !(toolbarElement instanceof HTMLFormElement)) {
             toolbarElement = document.createElement("form");
             toolbarElement.setAttribute("id", "arch-parameters-form");
-            this.container.appendChild(toolbarElement);
+            contentElement.appendChild(toolbarElement);
+        }
+
+        if (!canvasContainer || !(canvasContainer instanceof HTMLDivElement)) {
+            canvasContainer = document.createElement("div");
+            canvasContainer.setAttribute("class", "canvas-container");
+            contentElement.appendChild(canvasContainer);
         }
 
         if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
             canvas = document.createElement("canvas");
             canvas.setAttribute("id", "arch-drawing-area");
-            this.container.appendChild(canvas);
+            canvasContainer.appendChild(canvas);
         }
         this.canvas = canvas;
 
@@ -1296,10 +1573,18 @@ class ArchApplication {
             default:
                 throw new Error(`Unrecognised arch type: ${this.config.type}`);
         }
-        this.axisRenderer = new AxisRenderer(this.container);
+        this.axisRenderer = new AxisRenderer(canvasContainer);
         this.toolbar = new ToolbarManager(toolbarElement, TOOLBAR_FIELDS);
+        this.toolbar.populateToolbar();
 
         this.setArchType(this.config.type);
+
+        this.setupEventListeners();
+
+        this.resizeObserver = new ResizeObserver(() => {
+            this.refresh();
+        });
+        this.resizeObserver.observe(this.container);
 
         console.log(`${this.calculator} - ${this.renderer} - ${this.axisRenderer} - ${this.toolbar}`);
     }
@@ -1313,13 +1598,74 @@ class ArchApplication {
     }
 
     refresh(): void {
+        console.log("Refreshing...");
+        this.config = this.toolbar.readConfig(this.toolbar.getFormData());
+
+        switch (this.config.type) {
+            case "flat":
+                this.renderer = new FlatArchRenderer(this.canvas);
+                this.calculator = new FlatArchCalculator();
+                break;
+            case "radial":
+            case "semicircle":
+            case "bullseye":
+                console.log("NOT A FLAT ARCH");
+                this.renderer = new RadialArchRenderer(this.canvas);
+                this.calculator = new RadialArchCalculator();
+                console.log(`renderer is ${this.renderer instanceof RadialArchRenderer ? "" : "not "}a RadialArchRenderer`);
+                console.log(`calculator is ${this.calculator instanceof RadialArchCalculator ? "" : "not "}a RadialArchCalculator`);
+                break;
+            default:
+                throw new Error(`Unrecognised arch type: ${this.config.type}`);
+        }
+
+        this.calculateAndRender();
     }
 
-    // private calculateAndRender(): void {
-    // }
-    //
-    // private setupEventListeners(): void {
-    // }
+    private calculateAndRender(): void {
+        console.log(`renderer is ${this.renderer instanceof RadialArchRenderer ? "" : "not "}a RadialArchRenderer`);
+        console.log(`calculator is ${this.calculator instanceof RadialArchCalculator ? "" : "not "}a RadialArchCalculator`);
+        if (this.config.type === "flat" && this.calculator instanceof FlatArchCalculator &&
+            this.renderer instanceof FlatArchRenderer) {
+            const parameters: FlatArchParameters = this.calculator.calculateParameters(this.config as ArchConfig);
+            this.renderer.drawOutline(parameters, true);
+        } else if ((this.config.type === "radial" || this.config.type === "semicircle" ||
+            this.config.type === "bullseye") && this.calculator instanceof RadialArchCalculator &&
+            this.renderer instanceof RadialArchRenderer) {
+            const parameters: RadialArchParameters = this.calculator.calculateParameters(this.config as ArchConfig);
+            this.renderer.drawOutline(parameters);
+        } else {
+            console.log(`Type: ${this.config.type}, this.calculator instanceof RadialArchCalculator: ${this.calculator instanceof RadialArchCalculator}`);
+            throw new Error(`Unrecognised arch type: ${this.config.type}`);
+        }
+    }
+
+    private setupEventListeners(): void {
+        // Add event listener to minimise/restore buttons
+        // Project.prototype.setupEventListeners.call(this);
+
+        // Add event listener to type select on change to run setArchType
+        const typeSelectElement: HTMLSelectElement | null = this.toolbar.toolbarElement.querySelector("select#arch-type-toolbar-select");
+        if (typeSelectElement instanceof HTMLSelectElement) {
+            typeSelectElement.addEventListener("change", () => {
+                this.setArchType(typeSelectElement.value as ArchType);
+            });
+        }
+
+        for (let field of this.toolbar.fields) {
+            const fieldElement: HTMLSpanElement | null = this.toolbar.toolbarElement.querySelector(`[name=${field.name}]`);
+
+            if (!fieldElement || (!(fieldElement instanceof HTMLInputElement) && !(fieldElement instanceof HTMLSelectElement))) {
+                // throw new Error(`Field ${field.id} is not an input element.`);
+                console.error(`Field #${field.name}-toolbar-item is not an input element.`);
+                continue;
+            }
+
+            fieldElement.addEventListener("change", () => {
+                this.refresh();
+            });
+        }
+    }
 }
 
 class Arch extends Project {
@@ -1330,7 +1676,6 @@ class Arch extends Project {
 
         this.app = new ArchApplication(container);
 
-        // console.log(`${this.app}`);
     }
 }
 
