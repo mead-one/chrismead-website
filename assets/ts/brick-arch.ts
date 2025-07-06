@@ -217,40 +217,6 @@ class GeometryUtils {
     }
 }
 
-// abstract class ArchGeometry {
-//     abstract calculateArchParameters(config: ArchConfig): ArchParameters;
-//     abstract calculateBrickLayout(params: ArchParameters, brickConfig: BrickConfig): BrickLayout
-//
-//
-// }
-//
-// class FlatArchGeometry extends ArchGeometry {
-//     static calculateArchParameters(config: FlatArchConfig): FlatArchParameters {
-//         const params: FlatArchParameters = {
-//             baseRise: config.baseRise,
-//             topRise: config.topRise,
-//             skewAngle: config.skewAngle,
-//             skewLength: config.skewLength,
-//             baseRadius: config.baseRadius,
-//             topRadius: config.topRadius,
-//             baseOrigin: config.baseOrigin,
-//             fullAngle: config.fullAngle,
-//             brickCount: config.brickCount,
-//             baseBrickWidth: config.baseBrickWidth,
-//             topBrickWidth: config.topBrickWidth,
-//             baseJointAngle: config.baseJointAngle,
-//             topJointAngle: config.topJointAngle,
-//             baseFullAngle: config.baseFullAngle,
-//             topFullAngle: config.topFullAngle,
-//
-//             // Clear pieces
-//             pieces: []
-//         };
-//
-//         return params;
-//     }
-// }
-
 type ArchType = 'flat' | 'radial' | 'semicircle' | 'bullseye';
 type BrickDivisionMethod = 'width' | 'count';
 type SkewUnit = 'deg' | 'mm';
@@ -277,12 +243,6 @@ interface ArchConfig {
     rise?: number;
     //skew?: number;
 }
-
-// type BrickConfig = {
-//     divisionMethod: BrickDivisionMethod;
-//     divisionValue: number;
-//     jointSize: number;
-// }
 
 // Interface for full calculated arch parameters
 interface ArchParameters {
@@ -626,11 +586,11 @@ class RadialArchCalculator extends ArchCalculator {
                 }
 
                 if (baseRadius && topRadius && origin) {
-                    drawingWidth = this.geometry.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2 - skewAngle)[0];
-                    drawingHeight = this.geometry.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2)[1]; //rise + height;
+                    drawingWidth = this.geometry.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2 - skewAngle)[0] + 2 * globalThis.Arch.app.renderer.margin;
+                    drawingHeight = this.geometry.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2)[1] + 2 * globalThis.Arch.app.renderer.margin; //rise + height;
                 } else {
-                    drawingWidth = config.opening + 2 * DEFAULT_CANVAS_MARGIN;
-                    drawingHeight = config.height + 2 * DEFAULT_CANVAS_MARGIN;
+                    drawingWidth = config.opening + 2 * globalThis.Arch.app.renderer.margin;
+                    drawingHeight = config.height + 2 * globalThis.Arch.app.renderer.margin;
                 }
 
                 break;
@@ -642,8 +602,8 @@ class RadialArchCalculator extends ArchCalculator {
                 rise = config.opening / 2;
                 origin = [topRadius, 0];
                 fullAngle = Math.PI;
-                drawingWidth = 2 * topRadius;
-                drawingHeight = topRadius;
+                drawingWidth = 2 * (topRadius + globalThis.Arch.app.renderer.margin);
+                drawingHeight = topRadius + 2 * globalThis.Arch.app.renderer.margin;
                 break;
             case "bullseye":
                 baseRadius = config.opening / 2;
@@ -653,13 +613,11 @@ class RadialArchCalculator extends ArchCalculator {
                 rise = config.opening + config.height;
                 origin = [topRadius, topRadius];
                 fullAngle = 2 * Math.PI;
-                drawingWidth = 2 * topRadius;
-                drawingHeight = 2 * topRadius;
+                drawingWidth = 2 * (topRadius + globalThis.Arch.app.renderer.margin);
+                drawingHeight = drawingWidth;
                 break;
             default:
-                console.error(`Unrecognised arch type: ${config.type}`);
-                fullAngle = baseRadius = topRadius = origin = null;
-                rise = skewAngle = skewLength = 0;
+                throw new Error(`Unrecognised arch type: ${config.type}`);
         }
 
         if (fullAngle === null || baseRadius === null || topRadius === null || origin === null) {
@@ -705,23 +663,6 @@ class RadialArchCalculator extends ArchCalculator {
         let baseBrickArcLength = baseJustBricksArc / brickCount;
         let baseBrickAngle = this.geometry.arcLengthToArcAngle(baseBrickArcLength, baseRadius);
         let baseBrickWidth = this.geometry.arcLengthToTangentLength(baseBrickArcLength, baseRadius);
-
-        switch (config.type) {
-            case "radial":
-                drawingWidth = this.geometry.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2 - skewAngle)[0];
-                drawingHeight = this.geometry.calculateEndpoint(origin[0], origin[1], topRadius, Math.PI / 2)[1]; //rise + height;
-                break;
-            case "semicircle":
-                drawingWidth = 2 * topRadius;
-                drawingHeight = topRadius;
-                break;
-            case "bullseye":
-                drawingWidth = 2 * topRadius;
-                drawingHeight = 2 * topRadius;
-                break;
-            default:
-                throw new Error(`Unrecognised arch type: ${config.type}`);
-        }
 
         const params: RadialArchParameters = {
             type: config.type,
@@ -1238,12 +1179,12 @@ class RadialArchRenderer extends ArchRenderer {
             throw new Error("Missing required parameters.");
         }
 
+        this.canvas.width = parameters.drawingWidth;
+        this.canvas.height = parameters.drawingHeight;
+
         this.ctx.resetTransform();
         this.ctx.translate(this.margin, this.margin);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.canvas.width = parameters.drawingWidth;
-        this.canvas.height = parameters.drawingHeight;
 
         let bl: Point, br: Point, tr: Point, tl: Point;
         bl = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.baseRadius, Math.PI / 2 - parameters.skewAngle);
@@ -1258,93 +1199,11 @@ class RadialArchRenderer extends ArchRenderer {
         this.ctx.lineTo(bl[0], bl[1]);
         console.log(`Radial parameters: ${JSON.stringify(parameters)}`);
         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.baseRadius, startAngle, endAngle, false);
-        // this.ctx.lineTo(br[0], br[1]);
         this.ctx.lineTo(tr[0], tr[1]);
         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.topRadius, endAngle, startAngle, true);
         this.ctx.lineTo(bl[0], bl[1]);
         this.ctx.closePath();
         this.ctx.stroke();
-
-        // // if (!(this.ctx instanceof CanvasRenderingContext2D) || !parameters.origin || !parameters.baseRadius || !parameters.topRadius) {
-        // //     return;
-        // // }
-        // this.ctx.translate(this.margin, this.margin);
-        // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        //
-        // // Temporary logic until individual pieces are added
-        // switch (parameters.type) {
-        //     case "radial":
-        //         this.ctx.beginPath();
-        //         let point0 = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.baseRadius, (Math.PI / 2) + parameters.skewAngle);
-        //         this.ctx.lineTo(point0[0], point0[1]);
-        //         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.baseRadius, (Math.PI / 2) + parameters.skewAngle, (Math.PI / 2) - parameters.skewAngle, true);
-        //         let point2 = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.topRadius, (Math.PI / 2) - parameters.skewAngle);
-        //         this.ctx.lineTo(point2[0], point2[1]);
-        //         // this.ctx.lineTo(parameters.skewLength * 2 + parameters.opening, Math.sin(parameters.skewAngle) * parameters.height);
-        //         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.topRadius, Math.PI / 2 - parameters.skewAngle, Math.PI / 2 + parameters.skewAngle);
-        //         this.ctx.closePath();
-        //         this.ctx.stroke();
-        //
-        //         break;
-        //     case "semicircle":
-        //         this.ctx.beginPath();
-        //         this.ctx.lineTo(0,0);
-        //         this.ctx.lineTo(parameters.height, 0);
-        //         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.baseRadius, (Math.PI / 2) + (parameters.fullAngle / 2), (Math.PI / 2) - (parameters.fullAngle / 2), true);
-        //         this.ctx.lineTo(2 * parameters.topRadius, 0);
-        //         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.topRadius, (Math.PI / 2) - (parameters.fullAngle / 2), (Math.PI / 2) + (parameters.fullAngle / 2));
-        //         this.ctx.stroke();
-        //         break;
-        //     case "bullseye":
-        //         this.ctx.beginPath();
-        //         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.baseRadius, 0, 2 * Math.PI);
-        //         this.ctx.stroke();
-        //
-        //         this.ctx.beginPath();
-        //         this.ctx.arc(parameters.origin[0], parameters.origin[1], parameters.topRadius, 0, 2 * Math.PI);
-        //         this.ctx.stroke();
-        //         break;
-        //     default:
-        // }
-        //
-        // console.log(`Skew angle: ${this.geometry.radToDeg(parameters.skewAngle)}`);
-        // if (parameters.baseBrickAngle == null || parameters.topBrickAngle == null) {
-        //     return;
-        // }
-        // let currentBaseAngle = (Math.PI / 2) + parameters.skewAngle - (parameters.baseBrickAngle / 2);
-        // let currentTopAngle = (Math.PI / 2) + parameters.skewAngle - (parameters.topBrickAngle / 2);
-        // for (let i = 0; i < parameters.brickCount; i++) {
-        //     let bc = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.baseRadius, currentBaseAngle);
-        //     let bl = this.geometry.calculateEndpoint(bc[0], bc[1], parameters.baseBrickWidth / 2, currentBaseAngle + (Math.PI / 2));
-        //     let br = this.geometry.calculateEndpoint(bc[0], bc[1], parameters.baseBrickWidth / 2, currentBaseAngle - (Math.PI / 2));
-        //     let tc = this.geometry.calculateEndpoint(parameters.origin[0], parameters.origin[1], parameters.topRadius, currentTopAngle);
-        //     let tl = this.geometry.calculateEndpoint(tc[0], tc[1], parameters.topBrickWidth / 2, currentTopAngle + (Math.PI / 2));
-        //     let tr = this.geometry.calculateEndpoint(tc[0], tc[1], parameters.topBrickWidth / 2, currentTopAngle - (Math.PI / 2));
-        //
-        //     this.ctx.beginPath();
-        //     this.ctx.strokeStyle = "red";
-        //     this.ctx.setLineDash([]);
-        //     this.ctx.lineTo(bl[0], bl[1]);
-        //     this.ctx.lineTo(tl[0], tl[1]);
-        //     this.ctx.stroke();
-        //
-        //     this.ctx.beginPath();
-        //     this.ctx.strokeStyle = "blue";
-        //     this.ctx.setLineDash([5, 15]);
-        //     this.ctx.lineTo(bc[0], bc[1]);
-        //     this.ctx.lineTo(tc[0], tc[1]);
-        //     this.ctx.stroke();
-        //
-        //     this.ctx.beginPath();
-        //     this.ctx.strokeStyle = "red";
-        //     this.ctx.setLineDash([]);
-        //     this.ctx.lineTo(br[0], br[1]);
-        //     this.ctx.lineTo(tr[0], tr[1]);
-        //     this.ctx.stroke();
-        //
-        //     currentBaseAngle -= parameters.baseBrickAngle + parameters.baseJointAngle;
-        //     currentTopAngle -= parameters.topBrickAngle + parameters.topJointAngle;
-        // }
     }
 }
 
@@ -1675,7 +1534,6 @@ class Arch extends Project {
         super("brick-arch", "Brick Arch", container);
 
         this.app = new ArchApplication(container);
-
     }
 }
 
