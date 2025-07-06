@@ -78,6 +78,33 @@ export abstract class Project {
         titlebarMinimiseChk.setAttribute("id", `${this.appId}-minimise`);
         titlebarMinimiseChk.setAttribute("hidden", "");
         titlebarMinimiseChk.classList.add("project-window-minimise");
+        titlebarMinimiseChk.addEventListener("change", e => {
+            const checkbox: HTMLInputElement | null = e.target as HTMLInputElement;
+            const projectWindow: HTMLDivElement | null = this.container;
+            if (!checkbox || !projectWindow) {
+                console.error("Missing checkbox or project window.");
+                return;
+            }
+
+            const maximiseButton: HTMLInputElement | null = projectWindow.querySelector(".project-window-maximise");
+            const content: HTMLDivElement | null = projectWindow.querySelector(".project-content");
+            if (!maximiseButton || !content) {
+                return;
+            }
+            // Un-maximise the window
+            if (maximiseButton.checked) {
+                maximiseButton.checked = false;
+                projectWindow.classList.remove("maximised");
+            }
+
+            if (checkbox.checked) {
+                this.container.classList.add("minimised");
+                content.classList.add("minimised");
+            } else {
+                this.container.classList.remove("minimised");
+                content.classList.remove("minimised");
+            }
+        });
         titlebarControls.appendChild(titlebarMinimiseChk);
 
         const titlebarMinimiseLbl = document.createElement("label");
@@ -97,6 +124,30 @@ export abstract class Project {
         titlebarMaximiseChk.setAttribute("id", `${this.appId}-maximise`);
         titlebarMaximiseChk.setAttribute("hidden", "");
         titlebarMaximiseChk.classList.add("project-window-maximise");
+        titlebarMaximiseChk.addEventListener("change", e => {
+            const checkbox: HTMLInputElement | null = e.target as HTMLInputElement;
+            const projectWindow: HTMLDivElement | null = this.container;
+            // const projectWindow = e.target.parentElement.parentElement.parentElement;
+            const minimiseButton: HTMLInputElement | null = projectWindow.querySelector(".project-window-minimise");
+            const content: HTMLDivElement | null = projectWindow.querySelector(".project-content");
+
+            if (!checkbox || !projectWindow || !minimiseButton || !content) {
+                console.error("No project window or minimise button found.");
+                return;
+            }
+            // Un-minimise the window
+            if (minimiseButton.checked) {
+                minimiseButton.checked = false;
+                content.classList.remove("minimised");
+            }
+
+            if (checkbox.checked) {
+                projectWindow.classList.add("maximised");
+            } else {
+                projectWindow.classList.remove("maximised");
+            }
+            // archInstance.refreshCanvas();
+        });
         titlebarControls.appendChild(titlebarMaximiseChk);
 
         const titlebarMaximiseLbl = document.createElement("label");
