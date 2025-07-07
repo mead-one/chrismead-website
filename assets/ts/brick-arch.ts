@@ -1379,7 +1379,7 @@ class AxisRenderer {
 
         const yAxis = document.createElement("div");
         yAxis.className = "axis y";
-        yAxis.style.left = `${margin -2}px`;
+        yAxis.style.left = `${margin - axesWidth}px`;
         yAxis.style.height = `${this.canvas.height}px`;
         yAxis.style.width = `${axesWidth}px`;
         this.axes.appendChild(yAxis);
