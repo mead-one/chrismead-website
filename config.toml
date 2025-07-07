@@ -4,5 +4,6 @@ title = "ChrisMead.co.uk"
 # theme = ""
 
 [minify]
-  minifyOutput = false
-  disableJS = true
+  minifyOutput = true
+  disableJS = false
+  disableCSS = false
