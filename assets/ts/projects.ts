@@ -1,28 +1,5 @@
 // Defines a skeleton "window" to contain projects to be showcased on the website
 
-// enum ToolbarItemType {
-//     Button,
-//     Checkbox,
-//     Radio,
-//     Text,
-//     Select,
-//     Span
-// }
-//
-// interface SelectChoice {
-//     value: string;
-//     label: string;
-// }
-//
-// export interface ToolbarItem {
-//     id: string;
-//     name: string;
-//     label: string;
-//     type: ToolbarItemType;
-//     choices?: SelectChoice[]; // Only used for select
-//     classList?: string[]; // Only used for span
-// }
-
 export abstract class Project {
     appId: string;
     appTitle: string;
@@ -127,7 +104,6 @@ export abstract class Project {
         titlebarMaximiseChk.addEventListener("change", e => {
             const checkbox: HTMLInputElement | null = e.target as HTMLInputElement;
             const projectWindow: HTMLDivElement | null = this.container;
-            // const projectWindow = e.target.parentElement.parentElement.parentElement;
             const minimiseButton: HTMLInputElement | null = projectWindow.querySelector(".project-window-minimise");
             const content: HTMLDivElement | null = projectWindow.querySelector(".project-content");
 
@@ -135,6 +111,7 @@ export abstract class Project {
                 console.error("No project window or minimise button found.");
                 return;
             }
+
             // Un-minimise the window
             if (minimiseButton.checked) {
                 minimiseButton.checked = false;
@@ -146,7 +123,6 @@ export abstract class Project {
             } else {
                 projectWindow.classList.remove("maximised");
             }
-            // archInstance.refreshCanvas();
         });
         titlebarControls.appendChild(titlebarMaximiseChk);
 
@@ -173,33 +149,5 @@ export abstract class Project {
 
         return titlebar;
     }
-
-    // protected onMinimise(): void {
-    //     // TODO: Minimise window
-    //     const projectWindow = e.target.parentElement.parentElement.parentElement;
-    //     const maximiseButton = e.target.parentElement.querySelector(".project-window-maximise");
-    //     const content = projectWindow.querySelector(".project-content");
-    //     // Un-maximise the window
-    //     if (maximiseButton.checked) {
-    //         maximiseButton.checked = false;
-    //         projectWindow.classList.remove("maximised");
-    //     }
-    //
-    //     if (e.target.checked) {
-    //         this.container.classList.add("minimised");
-    //         content.classList.add("minimised");
-    //     } else {
-    //         this.container.classList.remove("minimised");
-    //         content.classList.remove("minimised");
-    //     }
-    // }
-    //
-    // protected onMaximise(): void {
-    //     // TODO: Maximise window
-    // }
-    //
-    // protected onClose(): void {
-    //     // TODO: Close window
-    // }
 }
 

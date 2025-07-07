@@ -580,7 +580,7 @@ class RadialArchCalculator extends ArchCalculator {
                     * riseOrSkew
                     * rise || skew
                 */
-                // let measurement = parseInt(riseOrSkewInput.value);
+
                 switch (config.riseOrSkew) {
                     case "rise":
                         if (!config.rise) {
@@ -972,7 +972,6 @@ class ToolbarManager {
             const fieldElement: HTMLSpanElement | null = this.toolbarElement.querySelector(`#${field.name}-toolbar-item`);
 
             if (!fieldElement || !(fieldElement instanceof HTMLSpanElement)) {
-                // throw new Error(`Field ${field.id} is not an input element.`);
                 console.error(`Field #${field.name}-toolbar-item is not an input element.`);
                 continue;
             }
@@ -985,7 +984,6 @@ class ToolbarManager {
         }
     }
 
-    // ########################## PLACEHOLDER ##########################
     getFormData(): Record<string, any> {
         const elements: HTMLFormControlsCollection = this.toolbarElement.elements;
         const formData: Record<string, any> = {};
@@ -1145,7 +1143,6 @@ class ToolbarManager {
         }
     }
 
-    // ########################## PLACEHOLDER ##########################
     updateFieldVisibility(archType: string): void {
         const archTypeField = this.fields.find(field => field.name === 'arch-type-toolbar-select');
         if (archTypeField) {
