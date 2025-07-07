@@ -309,6 +309,7 @@ form#arch-parameters-form {
 
 span.arch-toolbar-item {
     display: inline-block;
+    margin-right: 0.5em;
 }
 
 span.arch-toolbar-item input {

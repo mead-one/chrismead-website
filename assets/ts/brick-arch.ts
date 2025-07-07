@@ -19,7 +19,7 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
     {
         id: "arch-type-toolbar-select",
         name: "type",
-        label: "Arch type: ",
+        label: "Arch type:",
         type: "select",
         defaultValue: DEFAULT_ARCH_CONFIG.type,
         options: [
@@ -33,7 +33,7 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
     {
         id: "brick-width-or-count-input",
         name: "brick-width-or-count",
-        label: "Brick division: ",
+        label: "Brick width:",
         type: "number",
         defaultValue: DEFAULT_ARCH_CONFIG.brickWidth,
         visibleFor: ["flat", "radial", "semicircle", "bullseye"],
@@ -55,7 +55,7 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
     {
         id: "joint-size-toolbar-item",
         name: "joint-size",
-        label: "Joint size: ",
+        label: "Joint size:",
         type: "number",
         defaultValue: DEFAULT_ARCH_CONFIG.jointSize,
         visibleFor: ["flat", "radial", "semicircle", "bullseye"],
@@ -64,7 +64,7 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
     {
         id: "opening-toolbar-item",
         name: "opening",
-        label: "Opening: ",
+        label: "Opening:",
         type: "number",
         defaultValue: DEFAULT_ARCH_CONFIG.opening,
         visibleFor: ["flat", "radial", "semicircle", "bullseye"],
@@ -74,7 +74,7 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
     {
         id: "height-toolbar-item",
         name: "height",
-        label: "Height: ",
+        label: "Height:",
         type: "number",
         defaultValue: DEFAULT_ARCH_CONFIG.height,
         visibleFor: ["flat", "radial", "semicircle", "bullseye"],
@@ -84,7 +84,7 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
     {
         id: "skew-toolbar-item",
         name: "skew",
-        label: "Skew: ",
+        label: "Skew:",
         type: "number",
         defaultValue: DEFAULT_ARCH_CONFIG.skew,
         visibleFor: ["flat"],
@@ -106,7 +106,7 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
     {
         id: "base-rise-toolbar-item",
         name: "base-rise",
-        label: "Base rise: ",
+        label: "Base rise:",
         type: "number",
         defaultValue: DEFAULT_ARCH_CONFIG.baseRise,
         visibleFor: ["flat"],
@@ -115,7 +115,7 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
     {
         id: "top-rise-toolbar-item",
         name: "top-rise",
-        label: "Top rise: ",
+        label: "Top rise:",
         type: "number",
         defaultValue: DEFAULT_ARCH_CONFIG.topRise,
         visibleFor: ["flat"],
@@ -124,7 +124,7 @@ const TOOLBAR_FIELDS: Array<ToolbarField> = [
     {
         id: "rise-or-skew-toolbar-item",
         name: "rise-or-skew",
-        label: "Rise: ",
+        label: "Rise:",
         type: "number",
         defaultValue: 10,
         visibleFor: ["radial"],
@@ -1624,9 +1624,47 @@ class ArchApplication {
 
         // Add event listener to type select on change to run setArchType
         const typeSelectElement: HTMLSelectElement | null = this.toolbar.toolbarElement.querySelector("select#arch-type-toolbar-select");
+        const brickDivisionLabelElement: HTMLSpanElement | null = this.toolbar.toolbarElement.querySelector("span#brick-width-or-count-toolbar-item > label");
+        const brickDivisionSelectElement: HTMLSelectElement | null = this.toolbar.toolbarElement.querySelector("select#brick-division-toolbar-select");
+        const riseOrSkewLabelElement: HTMLSpanElement | null = this.toolbar.toolbarElement.querySelector("span#rise-or-skew-toolbar-item > label");
+        const riseOrSkewSelectElement: HTMLSelectElement | null = this.toolbar.toolbarElement.querySelector("select#rise-or-skew-toolbar-select");
+
         if (typeSelectElement instanceof HTMLSelectElement) {
             typeSelectElement.addEventListener("change", () => {
                 this.setArchType(typeSelectElement.value as ArchType);
+            });
+        }
+
+        // Add event listener to keep brick division label correct
+        if (brickDivisionLabelElement && brickDivisionSelectElement) {
+            brickDivisionSelectElement.addEventListener("change", () => {
+                switch (brickDivisionSelectElement.value) {
+                    case "width":
+                        brickDivisionLabelElement.innerText = "Brick width:";
+                        break;
+                    case "count":
+                        brickDivisionLabelElement.innerText = "No. of bricks:";
+                        break;
+                    default:
+                        throw new Error(`Unrecognised brick division method: ${brickDivisionSelectElement.value}`);
+                }
+            });
+        }
+
+        // Add event listener to keep rise/skew label correct
+        if (riseOrSkewLabelElement && riseOrSkewSelectElement) {
+            riseOrSkewSelectElement.addEventListener("change", () => {
+                switch (riseOrSkewSelectElement.value) {
+                    case "rise":
+                        riseOrSkewLabelElement.innerText = "Rise:";
+                        break;
+                    case "deg":
+                    case "mm":
+                        riseOrSkewLabelElement.innerText = "Skew:";
+                        break;
+                    default:
+                        throw new Error(`Unrecognised rise/skew choice: ${riseOrSkewSelectElement.value}`);
+                }
             });
         }
 
