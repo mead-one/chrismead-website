@@ -1,4 +1,6 @@
 {{ define "main" }}
+<main>
+    <div class="container">
 <h1>{{ .Title }}</h1>
 {{ range .Pages.ByDate }}
     {{ if and .IsPage (not .Params.hidden) }}
@@ -19,8 +21,6 @@
         </section>
     {{ end }}
 {{ end }}
-{{ $script := resources.Get "js/projects.js" }}
-{{ if $script }}
-    <script src="{{ $script.Permalink }}"></script>
-{{ end }}
+    </div>
+</main>
 {{ end }}

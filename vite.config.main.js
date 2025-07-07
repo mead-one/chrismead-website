@@ -9,7 +9,7 @@ export default defineConfig({
         // },
         rollupOptions: {
             input: {
-                'projects': resolve(__dirname, 'assets/ts/projects.ts'),
+                'main': resolve(__dirname, 'assets/ts/main.ts'),
             },
             output: {
                 dir: resolve(__dirname, 'assets/js'),

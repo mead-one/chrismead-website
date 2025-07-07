@@ -1,7 +1,16 @@
+{{ $script := resources.Get "js/main.js" }}
+{{ if $script }}
+    <script src="{{ $script.Permalink }}"></script>
+{{ end }}
 <footer>
-    <span id="footer-contacts">
-        <p>Email:</p>
-        <a id="footer-email" href="mailto:me@chrismead.co.uk">me@chrismead.co.uk</a>
-    </span>
-    <p>&copy; 2024 Christopher Mead</p>
+    <div class="container">
+        <div class="footer-content">
+            <p>&copy; 2024 Christopher Mead</p>
+            <span id="footerContacts">
+                <a href="mailto:me@chrismead.co.uk">Email</a>
+                <a href="https://linkedin.com/in/christopher-mead-4765bb182/">LinkedIn</a>
+                <a href="https://github.com/mead-one">GitHub</a>
+            </span>
+        </div>
+    </div>
 </footer>
