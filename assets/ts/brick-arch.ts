@@ -166,8 +166,10 @@ type Point = [number, number];
 
 interface BrickPiece {
     bl: Point;
+    bc: Point;
     br: Point;
     tr: Point;
+    tc: Point;
     tl: Point;
     label: string;
 }
@@ -252,6 +254,7 @@ interface ArchParameters {
 
     opening: number;
     height: number;
+    jointSize: number;
     skewAngle?: number;
     skewLength?: number;
     brickCount: number;
@@ -456,6 +459,7 @@ class FlatArchCalculator extends ArchCalculator {
 
             opening: config.opening,
             height: config.height,
+            jointSize: config.jointSize,
             skewAngle: skewAngle,
             skewLength: skewLength,
             brickCount: brickCount,
@@ -481,6 +485,61 @@ class FlatArchCalculator extends ArchCalculator {
         }
 
         return params;
+    }
+
+    calculatePieces(params: FlatArchParameters): void {
+        if (!params.skewAngle || params.baseRise == undefined || !params.topRise == undefined || !params.jointSize ||
+            !params.skewLength || !params.baseBrickWidth || !params.topBrickWidth ||            
+            !params.opening || !params.height) {
+            throw new Error("Missing required parameters.");
+        }
+
+        // Generate pieces
+        for (let i = 0; i < params.brickCount; i++) {
+            let piece: Partial<BrickPiece> = {};
+
+            // Plot bottom pieces
+            if (params.baseRise < 1) {
+                piece["bl"] = [params.skewLength + (params.baseBrickWidth + params.jointSize) * i, 0];
+                piece["br"] = [params.skewLength + (params.baseBrickWidth + params.jointSize) * i + params.baseBrickWidth, 0];
+                piece["bc"] = [Math.abs(piece["bl"][0] - piece["bl"][1]), 0];
+            } else {
+                if  (!params.baseOrigin || !params.baseRadius || !params.baseBrickAngle ||
+                    !params.baseJointAngle || !params.baseFullAngle) {
+                    throw new Error("Missing required parameters for base rise.");
+                }
+
+                let baseStartAngle: number = (Math.PI / 2) + params.baseFullAngle / 2 - params.baseBrickAngle / 2
+                let baseCurrentAngle: number = baseStartAngle - i * (params.baseBrickAngle + params.baseJointAngle);
+
+                piece["bc"] = this.geometry.calculateEndpoint(params.baseOrigin[0], params.baseOrigin[1], params.baseRadius, baseCurrentAngle);
+
+                piece["bl"] = this.geometry.calculateEndpoint(piece["bc"][0], piece["bc"][1], params.baseBrickWidth / 2, baseCurrentAngle + (Math.PI / 2));
+                piece["br"] = this.geometry.calculateEndpoint(piece["bc"][0], piece["bc"][1], params.baseBrickWidth / 2, baseCurrentAngle - (Math.PI / 2));
+            }
+
+            // Plot top pieces
+            if (params.topRise < 1) {
+                piece["tl"] = [(params.topBrickWidth + params.jointSize) * i, params.height]
+                piece["tr"] = [(params.topBrickWidth + params.jointSize) * i + params.topBrickWidth, params.height];
+            } else {
+                if (!params.topOrigin || !params.topRadius ||
+                    !params.topBrickAngle || !params.topJointAngle || !params.topFullAngle) {
+                    throw new Error("Missing required parameters for top rise.");
+                }
+
+                let topStartAngle = (Math.PI / 2) + (params.topFullAngle / 2) - (params.topBrickAngle / 2);
+                let topCurrentAngle = topStartAngle - i * (params.topBrickAngle + params.topJointAngle);
+
+                let tc = this.geometry.calculateEndpoint(params.topOrigin[0], params.topOrigin[1], params.topRadius, topCurrentAngle);
+                piece["tc"] = tc
+
+                piece["tl"] = this.geometry.calculateEndpoint(tc[0], tc[1], params.topBrickWidth / 2, topCurrentAngle + (Math.PI / 2));
+                piece["tr"] = this.geometry.calculateEndpoint(tc[0], tc[1], params.topBrickWidth / 2, topCurrentAngle - (Math.PI / 2));
+            }
+
+            params["pieces"].push(piece as BrickPiece);
+        }
     }
 
     // Conversion between angle and actual length of skew of flat arches using actual height of arch
@@ -669,6 +728,7 @@ class RadialArchCalculator extends ArchCalculator {
             // Store measurements in object
             opening: config.opening,
             height: config.height,
+            jointSize: config.jointSize,
             skewAngle: skewAngle,
             skewLength: skewLength,
             brickCount: brickCount,
@@ -691,6 +751,53 @@ class RadialArchCalculator extends ArchCalculator {
         }
 
         return params;
+    }
+
+    calculatePieces(params: RadialArchParameters): void {
+        if (!params.skewAngle || !params.baseBrickAngle || !params.topBrickAngle ||
+            !params.origin || !params.baseRadius || !params.topRadius ||
+            params.type !== "bullseye" && !params.skewLength || !params.baseBrickWidth ||
+            !params.topBrickWidth || !params.brickCount || !params.height ||
+            !params.opening || !params.baseJointAngle || !params.topJointAngle
+           ) {
+            throw new Error("Missing required parameters");
+        }
+        // Calculate pieces
+        let baseCurrentAngle: number = (Math.PI / 2) + params.skewAngle - (params.baseBrickAngle / 2);
+        let topCurrentAngle: number = (Math.PI / 2) + params.skewAngle - (params.topBrickAngle / 2);
+
+        if (params.type === "bullseye") {
+            baseCurrentAngle -= (Math.PI) - params.baseBrickAngle / 2;
+            topCurrentAngle -= (Math.PI) - params.topBrickAngle / 2;
+        }
+
+        for (let i = 0; i < params.brickCount; i++) {
+            let piece: Partial<BrickPiece> = {};
+            // piece["baseAngle"] = baseCurrentAngle;
+            // piece["topAngle"] = topCurrentAngle
+            piece["bc"] = this.geometry.calculateEndpoint(params.origin[0], params.origin[1], params.baseRadius, baseCurrentAngle);
+            piece["tc"] = this.geometry.calculateEndpoint(params.origin[0], params.origin[1], params.topRadius, topCurrentAngle);
+            
+            if (params.type !== "semicircle" || i > 0) {
+                piece["bl"] = this.geometry.calculateEndpoint(piece["bc"][0], piece["bc"][1], params.baseBrickWidth / 2, baseCurrentAngle + (Math.PI / 2));
+                piece["tl"] = this.geometry.calculateEndpoint(piece["tc"][0], piece["tc"][1], params.topBrickWidth / 2, topCurrentAngle + (Math.PI / 2));
+            } else {
+                piece["bl"] = [params.height, 0];
+                piece["tl"] = [0, 0];
+            }
+
+            if (params.type !== "semicircle" || i < params.brickCount - 1) {
+                piece["br"] = this.geometry.calculateEndpoint(piece["bc"][0], piece["bc"][1], params.baseBrickWidth / 2, baseCurrentAngle - (Math.PI / 2));
+                piece["tr"] = this.geometry.calculateEndpoint(piece["tc"][0], piece["tc"][1], params.topBrickWidth / 2, topCurrentAngle - (Math.PI / 2));
+            } else {
+                piece["br"] = [params.height + params.opening, 0];
+                piece["tr"] = [2 * params.height + params.opening, 0];
+            }
+
+            params["pieces"].push(piece as BrickPiece);
+            baseCurrentAngle -= params.baseBrickAngle + params.baseJointAngle;
+            topCurrentAngle -= params.topBrickAngle + params.topJointAngle;
+        }
     }
 
     // Conversion between angle and actual length of skew of radial arches using angular height of arch
@@ -970,7 +1077,7 @@ class ToolbarManager {
                 brickWidth = brickCount = undefined;
                 switch (formData["brick-division-select"]) {
                     case "width":
-                        brickWidth = formData["brick-width-or-count"];
+                        brickWidth = parseInt(formData["brick-width-or-count"]);
                         break;
                     case "count":
                         brickCount = formData["brick-width-or-count"];
@@ -1064,9 +1171,6 @@ abstract class ArchRenderer {
     }
 
     drawPieces(pieces: BrickPiece[]): void {
-        this.ctx.translate(globalThis.Arch.app.margin, globalThis.Arch.app.margin);
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
         for (let piece of pieces) {
             this.ctx.beginPath();
             this.ctx.lineTo(piece.bl[0], piece.bl[1]);
@@ -1486,12 +1590,26 @@ class ArchApplication {
         if (this.config.type === "flat" && this.calculator instanceof FlatArchCalculator &&
             this.renderer instanceof FlatArchRenderer) {
             const parameters: FlatArchParameters = this.calculator.calculateParameters(this.config as ArchConfig);
-            this.renderer.drawOutline(parameters, true);
+
+            this.calculator.calculatePieces(parameters);
+
+            // Draw outline in case of error (will be overwritten by the actual pieces)
+            // this.renderer.drawOutline(parameters, true);
+
+            this.renderer.adjustCanvas(parameters.drawingWidth, parameters.drawingHeight, true);
+            this.renderer.drawPieces(parameters.pieces);
         } else if ((this.config.type === "radial" || this.config.type === "semicircle" ||
             this.config.type === "bullseye") && this.calculator instanceof RadialArchCalculator &&
             this.renderer instanceof RadialArchRenderer) {
             const parameters: RadialArchParameters = this.calculator.calculateParameters(this.config as ArchConfig);
-            this.renderer.drawOutline(parameters);
+
+            this.calculator.calculatePieces(parameters);
+
+            // Draw outline in case of error (will be overwritten by the actual pieces)
+            // this.renderer.drawOutline(parameters);
+
+            this.renderer.adjustCanvas(parameters.drawingWidth, parameters.drawingHeight, true);
+            this.renderer.drawPieces(parameters.pieces);
         } else {
             throw new Error(`Unrecognised arch type: ${this.config.type}`);
         }
