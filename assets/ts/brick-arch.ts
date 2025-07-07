@@ -1699,7 +1699,6 @@ class ArchApplication {
         const titleBarHeight: number = globalThis.Arch.titlebar.getBoundingClientRect().height;
         const toolbarHeight: number = globalThis.Arch.app.toolbar.toolbarElement.getBoundingClientRect().height;
         const axesToggleBox: HTMLFormElement | null = this.container.querySelector("#axes-toggle-box");
-        // const realCanvasHeight = this.canvasContainer.getBoundingClientRect().height;
 
         let maxHeight;
         if (this.container.classList.contains("maximised")) {
