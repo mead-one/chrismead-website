@@ -152,10 +152,10 @@ section#todo * {
     font-family: "Schoolbell", cursive;
 }
 
-div.project-window:not(.maximised):not(.minimised) {
-    height: 60vh;
-    min-height: 30em;
-}
+/* div.project-window:not(.maximised):not(.minimised) { */
+/*     height: 60vh; */
+/*     min-height: 30em; */
+/* } */
 
 div.project-title-bar {
     display: flex;

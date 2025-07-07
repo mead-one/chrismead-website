@@ -1618,6 +1618,9 @@ class ArchApplication {
     private setupEventListeners(): void {
         // Add event listener to minimise/restore buttons
         // Project.prototype.setupEventListeners.call(this);
+        
+        const minimiseButton: HTMLInputElement | null = this.container.querySelector(".project-window-minimise");
+        const titlebar: HTMLDivElement | null = this.container.querySelector(".project-title-bar");
 
         // Add event listener to type select on change to run setArchType
         const typeSelectElement: HTMLSelectElement | null = this.toolbar.toolbarElement.querySelector("select#arch-type-toolbar-select");
@@ -1625,6 +1628,14 @@ class ArchApplication {
         const brickDivisionSelectElement: HTMLSelectElement | null = this.toolbar.toolbarElement.querySelector("select#brick-division-toolbar-select");
         const riseOrSkewLabelElement: HTMLSpanElement | null = this.toolbar.toolbarElement.querySelector("span#rise-or-skew-toolbar-item > label");
         const riseOrSkewSelectElement: HTMLSelectElement | null = this.toolbar.toolbarElement.querySelector("select#rise-or-skew-toolbar-select");
+
+        if (minimiseButton && titlebar) {
+            minimiseButton.addEventListener("change", () => {
+                if (minimiseButton.checked) {
+                    this.container.style.height = `${titlebar.getBoundingClientRect().height}px`;
+                }
+            });
+        }
 
         if (typeSelectElement instanceof HTMLSelectElement) {
             typeSelectElement.addEventListener("change", () => {
@@ -1693,6 +1704,14 @@ class ArchApplication {
         }
     }
 
+    adjustContainerHeight(normal: boolean): void {
+        if (normal) {
+            this.container.style.height = `${globalThis.Arch.titlebar.getBoundingClientRect().height + this.toolbar.toolbarElement.getBoundingClientRect().height + this.canvasContainer.getBoundingClientRect().height}px`;
+        } else {
+            this.container.style.height = "";
+        }
+    }
+
     adjustViewport() {
         console.log("adjustViewport");
         const windowHeight: number = document.body.getBoundingClientRect().height;
@@ -1721,6 +1740,12 @@ class ArchApplication {
             return;
         }
         axesToggleBox.style.transform = `scale(${1 / scale})`;
+
+        if (this.container.classList.contains("maximised") || this.container.classList.contains("minimised")) {
+            this.adjustContainerHeight(false);
+        } else {
+            this.adjustContainerHeight(true);
+        }
     }
 }
 
