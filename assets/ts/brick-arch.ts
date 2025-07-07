@@ -1,4 +1,4 @@
-import { Project/*, ToolbarItem */} from "./projects";
+import { Project/*, ToolbarItem */} from "./project";
 document.addEventListener("DOMContentLoaded", initialise);
 
 const DEFAULT_CANVAS_MARGIN = 50;

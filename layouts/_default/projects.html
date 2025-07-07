@@ -2,16 +2,25 @@
 <h1>{{ .Title }}</h1>
 {{ range .Pages.ByDate }}
     {{ if and .IsPage (not .Params.hidden) }}
-        <section id="{{ .Params.id }}">
+        <section id="{{ .Params.id }}" class="project-section">
             <h2>{{ .Title }}</h2>
             <small>Main page at: <a href="{{ .RelPermalink }}">{{ .Title }}</a></small>
-            {{ .Content }}
+            <p>{{ .Params.description }}</p>
+            <div class="project-image-viewer">
+            {{ if .Params.images }}
+                {{ $page := . }}
+                {{ range .Params.images }}
+                    <!-- <a href="{{ $page.RelPermalink }}"> -->
+                    <a href={{ $page.RelPermalink }}><img src="/img/projects/{{ . }}" alt="{{ $page.Title }}" class="projects-image" /></a>
+                    <!-- </a> -->
+                {{ end }}
+            {{ end }}
+            </div>
         </section>
-        {{ $script := resources.Get (printf "js/%s.js" .Params.id) }}
-        {{ if $script }}
-            {{ $minifiedScript := $script | minify | fingerprint }}
-            <script src="{{ $minifiedScript.Permalink }}"></script>
-        {{ end }}
     {{ end }}
+{{ end }}
+{{ $script := resources.Get "js/projects.js" }}
+{{ if $script }}
+    <script src="{{ $script.Permalink }}"></script>
 {{ end }}
 {{ end }}

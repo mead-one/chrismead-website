@@ -3,6 +3,10 @@ import { resolve } from 'path'
 
 export default defineConfig({
     build: {
+        useRecommendedBuildConfig: false,
+        // modulePreload: {
+        //     polyfill: false
+        // },
         rollupOptions: {
             input: {
                 'brick-arch': resolve(__dirname, 'assets/ts/brick-arch.ts'),
@@ -17,7 +21,7 @@ export default defineConfig({
             }
         },
         outDir: '../../assets/js',
-        emptyOutDir: true,
+        emptyOutDir: false, // Don't clear other compiled JS
         copyPublicDir: false,
         minify: false // Let Hugo handle minification
     },
