@@ -82,13 +82,19 @@
                             {{ if or (eq .Kind "home") (eq .Kind "section") (and (eq .Kind "page") (eq .Parent.Kind "home")) }}
                             {{ if .IsSection }}
                             <li class="dropdown">
-                                <a class="dropbtn" href="{{ .RelPermalink }}"><span class="dropdown-toggle">{{ .Title }}</span></a>
+                                <span class="dropdown-toggle"><a href="{{ .RelPermalink }}">{{ .Title }}</a></span>
                                 <div class="dropdown-menu">
                                     {{ range .Pages }}
                                     {{ if and (.IsPage) (not .Params.hidden) }}
-                                    <a href="{{ .RelPermalink }}">{{ .Title }}<span class="dropdown-item-description">{{ .Description }}</span></a>
+                                    <a href="{{ .RelPermalink }}">
+                                        {{ .Title }}
+                                        <span class="dropdown-item-description">{{ .Params.brief }}</span>
+                                    </a>
                                     {{ end }}
                                     {{ end }}
+                                    <a href="#test"> Test <span class="dropdown-item-description">Test test test</span></a>
+                                    <a href="#test"> Test <span class="dropdown-item-description">Test test test</span></a>
+                                    <a href="#test"> Test <span class="dropdown-item-description">Test test test</span></a>
                                 </div>
                             </li>
                             {{ else }}

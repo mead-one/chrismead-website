@@ -11,6 +11,11 @@
     --border-color: #e5f0e8;
     --shadow: 0 2px 10px rgba(45, 90, 61, 0.1);
 
+    /* link colors */
+    --link-color: #2d5a3d;
+    --link-hover-color: #6b9b7a;
+    --link-visited-color: #5a5353;
+
     /* --bg-colour1: gold; */
     /* --bg-colour2: #D788D7; */
     /* --bg-colour3: #5D54A3; */
@@ -60,6 +65,10 @@
     --text-muted: #8bb199;
     --border-color: #2d5a3d;
     --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+
+    --link-color: #6b9b7a;
+    --link-hover-color: #8bb199;
+    --link-visited-color: #8bb199;
 }
 
 * {
@@ -158,12 +167,18 @@ nav ul {
     gap: 2rem;
 }
 
+nav li {
+    position: relative;
+}
+
 nav a {
     text-decoration: none;
     color: var(--text-secondary);
     font-weight: 500;
     transition: color 0.3s ease;
     position: relative;
+    display: block;
+    padding: 0.5rem 0;
 }
 
 nav a:hover {
@@ -172,8 +187,8 @@ nav a:hover {
 
 nav a::after {
     content: '';
-    position: absolute;
-    bottom: -5px;
+    /* position: absolute; */
+    bottom: 3px;
     left: 0;
     width: 0;
     height: 2px;
@@ -222,7 +237,7 @@ nav a:hover::after {
     box-shadow: var(--shadow);
     opacity: 0;
     visibility: hidden;
-    transform: translatyY(-10px);
+    transform: translateY(-10px);
     transition: all 0.3s ease;
     z-index: 1000;
     backdrop-filter: blur(10px);
@@ -258,9 +273,8 @@ nav a:hover::after {
     color: var(--text-muted);
     display: block;
     margin-top: 0.3rem;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    /* overflow: hidden; */
+    /* text-overflow: ellipsis; */
 }
 
 /* MAIN */
@@ -274,6 +288,22 @@ main {
 
 main p {
     margin-top: 1em;
+}
+
+main h1, main h2, main h3 {
+    color: var(--primary-green);
+}
+
+main a {
+    color: var(--link-color);
+}
+
+main a:hover {
+    color: var(--link-hover-color);
+}
+
+main a:visited {
+    color: var(--link-visited-color);
 }
 
 .hero {
@@ -442,7 +472,6 @@ div.project-title-bar {
     align-items: center;
     width: 100%;
     /* color: #ECF0C1; */
-    color: var(--medium-green);
     border-bottom: 1px solid #54575A;
     border-radius: .1em .1em 0 0;
     /* background-color: #2A2E32; */
@@ -455,6 +484,7 @@ div.project-title-bar > label {
 }
 
 .project-title-bar h2 {
+    color: var(--text-primary);
     font-size: 20px;
     font-weight: normal;
     text-align: center;
