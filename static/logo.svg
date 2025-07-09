@@ -2,69 +2,185 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="35mm"
-   height="20mm"
-   viewBox="0 0 35 20"
+   width="65mm"
+   height="65mm"
+   viewBox="0 0 65 65"
    version="1.1"
    id="svg1"
-   xml:space="preserve"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-   <style>#logo_c {fill:gold;} #logo_m {fill:#9D65CA;}</style>
-<g id="logo_c" class="logo">
-    <circle cx="6.0662556" cy="19.042946" r="0.86921543" />
-    <circle cx="8.2991171" cy="18.444925" r="0.86921543" />
-    <circle cx="9.8595409" cy="16.618484" r="0.86921543" />
-    <circle cx="10.588348" cy="14.428501" r="0.86921543" />
-    <circle cx="3.8274024" cy="18.39352" r="0.86921543" />
-    <circle cx="2.2607026" cy="16.681454" r="0.86921543" />
-    <circle cx="1.5346036" cy="14.408585" r="0.86921543" />
-    <circle cx="1.3381974" cy="12.236803" r="0.86921543" />
-    <circle cx="1.2025441" cy="9.8978844" r="0.86921543" />
-    <circle cx="1.3359827" cy="7.66891" r="0.86921543" />
-    <circle cx="1.5186137" cy="5.4758496" r="0.86921543" />
-    <circle cx="2.3316653" cy="3.0797482" r="0.86921543" />
-    <circle cx="3.8868017" cy="1.4784846" r="0.86921543" />
-    <circle cx="6.0328846" cy="0.95536935" r="0.86921543" />
-    <circle cx="8.2889128" cy="1.4257311" r="0.86921543" />
-    <circle cx="9.8688974" cy="3.1120913" r="0.86921543" />
-    <circle cx="10.633615" cy="5.4891381" r="0.86921543" />
-</g>
-<g id="logo_m" class="logo">
-    <circle cx="13.79059" cy="19.042946" r="0.86921543" />
-    <circle cx="18.250431" cy="19.042946" r="0.86921543" />
-    <circle cx="15.990208" cy="19.042946" r="0.86921543" />
-    <circle cx="15.990208" cy="16.782" r="0.86921543" />
-    <circle cx="15.990208" cy="14.521051" r="0.86921543" />
-    <circle cx="15.990208" cy="12.260105" r="0.86921543" />
-    <circle cx="27.353859" cy="5.4772635" r="0.86921543" />
-    <circle cx="27.353859" cy="7.7382107" r="0.86921543" />
-    <circle cx="27.353859" cy="9.9991579" r="0.86921543" />
-    <circle cx="27.353859" cy="12.260105" r="0.86921543" />
-    <circle cx="27.353859" cy="14.521051" r="0.86921543" />
-    <circle cx="27.353859" cy="16.782" r="0.86921543" />
-    <circle cx="27.353859" cy="19.042946" r="0.86921543" />
-    <circle cx="25.214554" cy="19.042946" r="0.86921543" />
-    <circle cx="29.455055" cy="19.042946" r="0.86921543" />
-    <circle cx="27.353859" cy="3.2163165" r="0.86921543" />
-    <circle cx="27.353859" cy="0.95536935" r="0.86921543" />
-    <circle cx="24.287283" cy="5.6517954" r="0.86921543" />
-    <circle cx="24.677544" cy="3.2599494" r="0.86921543" />
-    <circle cx="25.093134" cy="0.95536935" r="0.86921543" />
-    <circle cx="23.750273" cy="7.9127426" r="0.86921543" />
-    <circle cx="13.677732" cy="0.95536935" r="0.86921543" />
-    <circle cx="15.990207" cy="5.4772635" r="0.86921543" />
-    <circle cx="15.990208" cy="3.2163165" r="0.86921543" />
-    <circle cx="15.990208" cy="0.95536935" r="0.86921543" />
-    <circle cx="15.990208" cy="7.7382107" r="0.86921543" />
-    <circle cx="15.990208" cy="9.9991579" r="0.86921543" />
-    <circle cx="18.292221" cy="0.95536935" r="0.86921543" />
-    <circle cx="18.805351" cy="3.2163165" r="0.86921543" />
-    <circle cx="19.219492" cy="5.6517954" r="0.86921543" />
-    <circle cx="19.732622" cy="7.9127426" r="0.86921543" />
-    <circle cx="20.320042" cy="10.205626" r="0.86921543" />
-    <circle cx="23.022417" cy="10.205626" r="0.86921543" />
-    <circle cx="21.749718" cy="12.257045" r="0.86921543" />
-    <circle cx="29.475721" cy="0.95536935" r="0.86921543" />
-</g>
+  <defs
+     id="defs1" />
+  <g
+     id="layer1"
+     transform="translate(-7.4999992,-7.4999992)">
+    <circle
+       cx="40"
+       cy="40"
+       r="31.755726"
+       fill="none"
+       stroke="#2d5a3d"
+       stroke-width="1.48855"
+       opacity="0.3"
+       id="circle1" />
+    <g
+       transform="matrix(0.72294705,0,0,0.72294705,24.470756,35.265755)"
+       id="g5">
+      <!-- Trunk -->
+      <!-- Branching structure - representing growth and connectivity -->
+      <path
+         d="m -8,14.90427 8,8 8,-8 M -12,6.9042697 0,18.90427 12,6.9042697"
+         stroke="#2d5a3d"
+         stroke-width="2"
+         fill="none"
+         stroke-linecap="round"
+         id="path1" />
+      <path
+         d="m 32.875093,31.217124 -8.675365,-8.675365 -8.675365,8.675365 0.271028,9.040052"
+         stroke="#2d5a3d"
+         stroke-width="1.44589"
+         fill="none"
+         stroke-linecap="round"
+         id="path1-7"
+         transform="matrix(1.3832272,0,0,1.3832272,-33.848615,-48.78055)" />
+      <!-- Leaves/nodes - representing AI/tech nodes -->
+      <circle
+         cx="-8"
+         cy="14.90427"
+         r="3"
+         fill="#4a7c59"
+         id="circle2" />
+      <circle
+         cx="8"
+         cy="14.90427"
+         r="3"
+         fill="#4a7c59"
+         id="circle3" />
+      <circle
+         cx="11.625107"
+         cy="-5.6001763"
+         r="2.5"
+         fill="#6b9b7a"
+         id="circle5-3" />
+      <!-- Root system suggestion -->
+      <path
+         d="m 0,24 -6,4 m 6,-4 6,4"
+         stroke="#2d5a3d"
+         stroke-width="1.5"
+         fill="none"
+         stroke-linecap="round"
+         opacity="0.6"
+         id="path5" />
+      <circle
+         cx="-12"
+         cy="6.9042697"
+         r="2.5"
+         fill="#6b9b7a"
+         id="circle4" />
+      <circle
+         cx="15.524363"
+         cy="-31.217125"
+         r="1.8073677"
+         fill="#6b9b7a"
+         id="circle4-9"
+         style="stroke-width:0.722947"
+         transform="matrix(1.3832272,0,0,-1.3832272,-33.848615,-48.78055)" />
+      <circle
+         cx="33.146122"
+         cy="-40.257175"
+         r="1.8073677"
+         fill="#6b9b7a"
+         id="circle5-2"
+         style="stroke-width:0.722947"
+         transform="matrix(1.3832272,0,0,-1.3832272,-33.848615,-48.78055)" />
+      <circle
+         cx="29.983303"
+         cy="25.433546"
+         r="2.1688411"
+         fill="#4a7c59"
+         id="circle2-5"
+         style="display:none;stroke-width:0.722947"
+         transform="matrix(1.3832272,0,0,1.3832272,-33.848615,-48.78055)" />
+      <circle
+         cx="18.416151"
+         cy="25.433546"
+         r="2.1688411"
+         fill="#4a7c59"
+         id="circle2-97"
+         style="display:none;stroke-width:0.722947"
+         transform="matrix(1.3832272,0,0,1.3832272,-33.848615,-48.78055)" />
+    </g>
+    <g
+       transform="matrix(0.72294705,0,0,0.72294705,53.163774,35.932629)"
+       id="g5-2">
+      <!-- Trunk -->
+      <rect
+         x="-1.4932283"
+         y="-1.1900622"
+         width="2.9932303"
+         height="25.190062"
+         fill="#2d5a3d"
+         rx="1.4966152"
+         id="rect1-7"
+         ry="1.4966152" />
+      <!-- Branching structure - representing growth and connectivity -->
+      <path
+         d="M -8,-7.6331408 0,0.36685923 8,-7.6331408 M -12.075643,21.242207 -12.227164,-15.606616 0,-3.6331408 12,-15.633141 12.07987,20.989253"
+         stroke="#2d5a3d"
+         stroke-width="2"
+         fill="none"
+         stroke-linecap="round"
+         id="path1-0" />
+      <!-- Leaves/nodes - representing AI/tech nodes -->
+      <g
+         id="g1">
+        <circle
+           cx="-8"
+           cy="-7.6331406"
+           r="3"
+           fill="#4a7c59"
+           id="circle2-9" />
+        <circle
+           cx="8"
+           cy="-7.6331406"
+           r="3"
+           fill="#4a7c59"
+           id="circle3-3" />
+        <circle
+           cx="-12.227164"
+           cy="-15.606616"
+           r="2.5"
+           fill="#6b9b7a"
+           id="circle4-6" />
+        <circle
+           cx="-12.075643"
+           cy="21.242207"
+           r="2.5"
+           fill="#6b9b7a"
+           id="circle4-6-8" />
+        <circle
+           cx="12"
+           cy="-15.633141"
+           r="2.5"
+           fill="#6b9b7a"
+           id="circle5-0" />
+      </g>
+      <!-- Root system suggestion -->
+      <path
+         d="m 0,24 -6,4 m 6,-4 6,4"
+         stroke="#2d5a3d"
+         stroke-width="1.5"
+         fill="none"
+         stroke-linecap="round"
+         opacity="0.6"
+         id="path5-6" />
+    </g>
+    <circle
+       cx="61.896881"
+       cy="51.106747"
+       r="1.8073677"
+       fill="#6b9b7a"
+       id="circle4-6-6"
+       style="stroke-width:0.722947" />
+  </g>
 </svg>
