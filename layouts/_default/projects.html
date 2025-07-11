@@ -1,5 +1,5 @@
 {{ define "main" }}
-{{ $pages := .Pages.ByDate }}
+{{ $pages := .Pages.ByDate.Reverse }}
 {{ $filteredPages := slice }}
 {{ range $pages }}
     {{ if and .IsPage (not .Params.hidden) }}
@@ -15,16 +15,16 @@
                     <h2>{{ .Title }}</h2>
                     <small>Main page at: <a href="{{ .RelPermalink }}">{{ .Title }}</a></small>
                     <p>{{ .Params.description }}</p>
-                    <div class="project-image-viewer">
-                    {{ if .Params.images }}
+                    {{ if and .Params.images }}
                         {{ $page := . }}
+                        <div class="project-image-viewer">
                         {{ range .Params.images }}
                             <!-- <a href="{{ $page.RelPermalink }}"> -->
                             <a href={{ $page.RelPermalink }}><img src="/img/projects/{{ . }}" alt="{{ $page.Title }}" class="projects-image" /></a>
                             <!-- </a> -->
                         {{ end }}
+                        </div>
                     {{ end }}
-                    </div>
                 </section>
         {{ end }}
         {{ template "_internal/pagination.html" . }}
