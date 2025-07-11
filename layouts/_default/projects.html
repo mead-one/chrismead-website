@@ -1,26 +1,33 @@
 {{ define "main" }}
-<main>
-    <div class="container">
-<h1>{{ .Title }}</h1>
-{{ range .Pages.ByDate }}
+{{ $pages := .Pages.ByDate }}
+{{ $filteredPages := slice }}
+{{ range $pages }}
     {{ if and .IsPage (not .Params.hidden) }}
-        <section id="{{ .Params.id }}" class="project-section">
-            <h2>{{ .Title }}</h2>
-            <small>Main page at: <a href="{{ .RelPermalink }}">{{ .Title }}</a></small>
-            <p>{{ .Params.description }}</p>
-            <div class="project-image-viewer">
-            {{ if .Params.images }}
-                {{ $page := . }}
-                {{ range .Params.images }}
-                    <!-- <a href="{{ $page.RelPermalink }}"> -->
-                    <a href={{ $page.RelPermalink }}><img src="/img/projects/{{ . }}" alt="{{ $page.Title }}" class="projects-image" /></a>
-                    <!-- </a> -->
-                {{ end }}
-            {{ end }}
-            </div>
-        </section>
+        {{ $filteredPages = $filteredPages | append . }}
     {{ end }}
 {{ end }}
+{{ $paginator := .Paginate $filteredPages }}
+<main>
+    <div class="container">
+        <h1>{{ .Title }}</h1>
+        {{ range $paginator.Pages }}
+                <section id="{{ .Params.id }}" class="project-section">
+                    <h2>{{ .Title }}</h2>
+                    <small>Main page at: <a href="{{ .RelPermalink }}">{{ .Title }}</a></small>
+                    <p>{{ .Params.description }}</p>
+                    <div class="project-image-viewer">
+                    {{ if .Params.images }}
+                        {{ $page := . }}
+                        {{ range .Params.images }}
+                            <!-- <a href="{{ $page.RelPermalink }}"> -->
+                            <a href={{ $page.RelPermalink }}><img src="/img/projects/{{ . }}" alt="{{ $page.Title }}" class="projects-image" /></a>
+                            <!-- </a> -->
+                        {{ end }}
+                    {{ end }}
+                    </div>
+                </section>
+        {{ end }}
+        {{ template "_internal/pagination.html" . }}
     </div>
 </main>
 {{ end }}

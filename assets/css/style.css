@@ -8,13 +8,13 @@
     --text-primary: #1a1a1a;
     --text-secondary: #4a4a4a;
     --text-muted: #777777;
-    --border-color: #e5f0e8;
+    --border-colour: #e5f0e8;
     --shadow: 0 2px 10px rgba(45, 90, 61, 0.1);
 
     /* link colors */
-    --link-color: #2d5a3d;
-    --link-hover-color: #6b9b7a;
-    --link-visited-color: #5a5353;
+    --link-colour: #2d5a3d;
+    --link-hover-colour: #6b9b7a;
+    --link-visited-colour: #5a5353;
 
     /* --bg-colour1: gold; */
     /* --bg-colour2: #D788D7; */
@@ -63,12 +63,12 @@
     --text-primary: #e8f5ea;
     --text-secondary: #c2dcc7;
     --text-muted: #8bb199;
-    --border-color: #2d5a3d;
+    --border-colour: #2d5a3d;
     --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 
-    --link-color: #6b9b7a;
-    --link-hover-color: #8bb199;
-    --link-visited-color: #8bb199;
+    --link-colour: #6b9b7a;
+    --link-hover-colour: #8bb199;
+    --link-visited-colour: #8bb199;
 }
 
 * {
@@ -95,7 +95,7 @@ body {
 
 header {
     background: var(--bg-primary);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-colour);
     position: sticky
     top: 0;
     z-index: 100;
@@ -142,7 +142,7 @@ header {
 
 .theme-toggle {
     background: none;
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--border-colour);
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -230,7 +230,7 @@ nav a:hover::after {
     top: 100%;
     left: 0;
     background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-colour);
     border-radius: 8px;
     padding: 0.5rem 0;
     min-width: 200px;
@@ -277,6 +277,46 @@ nav a:hover::after {
     /* text-overflow: ellipsis; */
 }
 
+/* PAGINATION */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+    list-style: none;
+
+}
+
+.pagination a {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--medium-green);
+    border-radius: 4px;
+    margin: 0 0.5rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.pagination a:hover {
+    background: var(--bg-secondary);
+    color: var(--primary-green);
+}
+
+.pagination li.active a {
+    color: var(--text-secondary);
+    border-color: var(--primary-green);
+    cursor: default;
+    pointer-events: none;
+}
+
+.pagination li.disabled a {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: var(--text-muted);
+    border-color: var(--light-green);
+}
+
 /* MAIN */
 
 main {
@@ -295,15 +335,15 @@ main h1, main h2, main h3 {
 }
 
 main a {
-    color: var(--link-color);
+    color: var(--link-colour);
 }
 
 main a:hover {
-    color: var(--link-hover-color);
+    color: var(--link-hover-colour);
 }
 
 main a:visited {
-    color: var(--link-visited-color);
+    color: var(--link-visited-colour);
 }
 
 .hero {
@@ -352,7 +392,7 @@ main a:visited {
 
 footer {
     background: var(--bg-secondary);
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-colour);
     padding: 2rem 0;
     text-align: center;
 }
