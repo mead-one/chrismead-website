@@ -2,16 +2,24 @@
 <main>
     <div class="container">
         {{ if eq .Kind "taxonomy" }}
+            {{ $pages := .Pages.ByTitle }}
+            {{ $filteredPages := slice }}
+            {{ range $pages }}
+                {{ if .Data.Term }}
+                    {{ $filteredPages = $filteredPages | append . }}
+                {{ end }}
+            {{ end }}
+            {{ $paginator := .Paginate $filteredPages 60 }}
             <h1>{{ .Title }}</h1>
             <ul class="taxonomy-tags">
-                {{ range .Pages.ByTitle }}
+                {{ range $paginator.Pages }}
                     <li>
                         <a href="{{ .RelPermalink }}">#{{ .Name }}</a>
                     </li>
                 {{ end }}
+                {{ template "_internal/pagination.html" . }}
             </ul>
         {{ else if eq .Kind "term" }}
-            <h1>#{{ .Name }}</h1>
             {{ $pages := .Pages.ByDate.Reverse }}
             {{ $filteredPages := slice }}
             {{ range $pages }}
@@ -20,6 +28,7 @@
                 {{ end }}
             {{ end }}
             {{ $paginator := .Paginate $filteredPages }}
+            <h1>#{{ .Name }}</h1>
             <ul class="taxonomy-posts">
             {{ range $paginator.Pages }}
                 {{ if eq .Params.layout "post" }}
@@ -73,6 +82,8 @@
                     {{ end }}
                 {{ end }}
             {{ end }}
+            </ul>
+            {{ template "_internal/pagination.html" . }}
         {{ end }}
     </div>
 </main>
