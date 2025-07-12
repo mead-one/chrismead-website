@@ -4,7 +4,7 @@
         {{ if eq .Kind "taxonomy" }}
             <h1>{{ .Title }}</h1>
             <ul class="taxonomy-tags">
-                {{ range .Pages }}
+                {{ range .Pages.ByTitle }}
                     <li>
                         <a href="{{ .RelPermalink }}">#{{ .Name }}</a>
                     </li>
