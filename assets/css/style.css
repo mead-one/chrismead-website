@@ -10,6 +10,14 @@
     --text-muted: #777777;
     --border-colour: #e5f0e8;
     --shadow: 0 2px 10px rgba(45, 90, 61, 0.1);
+    --primary-orange: #e6521f;
+    --medium-orange: #fb9c3a;
+    --light-orange: #fcef91;
+    --accent-orange: #ea2f14;
+    --primary-blue: #0065f8;
+    --medium-blue: #4ed7f1;
+    --light-blue: #6fe6fc;
+    --accent-blue: #a8f1ff;
 
     /* link colors */
     --link-colour: #2d5a3d;
@@ -329,6 +337,42 @@ nav a:hover::after {
     column-gap: 1rem;
 }
 
+.taxonomy-section {
+    margin-top: 2em;
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    padding: 1rem;
+}
+
+.taxonomy-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.taxonomy-title h2 {
+    display: inline-block;
+    margin: 0;
+}
+
+.content-badge {
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    border-radius: 0.25em;
+    font-size: 0.75em;
+    text-transform: uppercase;
+    color: white;
+    background: linear-gradient(135deg, var(--primary-green), var(--medium-green));
+}
+
+.content-badge.blog-badge {
+    background: linear-gradient(135deg, var(--medium-blue), var(--primary-blue));
+}
+
+.content-badge.project-badge {
+    background: linear-gradient(135deg, var(--medium-orange), var(--primary-orange));
+}
+
 /* MAIN */
 
 main {
@@ -504,6 +548,19 @@ footer {
     }
 }
 
+/* SECTIONS */
+
+.project-section, .blog-section {
+    margin-top: 2em;
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    padding: 1rem;
+}
+
+.project-section h2, .blog-section h2 {
+    margin: 0;
+}
+
 /* PROJECTS */
 
 div.image-viewer {
@@ -517,7 +574,6 @@ div.image-viewer {
     white-space: nowrap;
     margin: 1em 0;
     border-radius: .2em;
-    box-shadow: 0 .25em .5em 0 rgba(0,0,0,0.2);
     overflow: auto hidden;
     scroll-direction: horizontal;
 }

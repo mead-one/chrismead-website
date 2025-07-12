@@ -22,8 +22,12 @@
             {{ $paginator := .Paginate $filteredPages }}
             <ul class="taxonomy-posts">
             {{ range $paginator.Pages }}
-                <section id="{{ .Params.id }}" class="blog-section">
-                    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+                {{ if eq .Params.layout "post" }}
+                <section id="{{ .Params.id }}" class="taxonomy-section">
+                    <div class="taxonomy-title">
+                        <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+                        <span class="content-badge blog-badge">Blog</span>
+                    </div>
                     {{ if .Params.tags }}
                     <div class="tags">
                         {{ range .Params.tags }}
@@ -43,6 +47,31 @@
                         </div>
                     {{ end }}
                 </section>
+                {{ else if eq .Params.layout "project" }}
+                <section id="{{ .Params.id }}" class="taxonomy-section">
+                    <div class="taxonomy-title">
+                        <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+                        <span class="content-badge project-badge">Project</span>
+                    </div>
+                    {{ if .Params.tags }}
+                    <div class="tags">
+                        {{ range .Params.tags }}
+                        <a href="/tags/{{ . | urlize }}">#{{ . }}</a>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+                    <p>{{ .Params.description }}</p>
+                    {{ if and .Params.images }}
+                        {{ $page := . }}
+                        <div class="image-viewer">
+                        {{ range .Params.images }}
+                            <!-- <a href="{{ $page.RelPermalink }}"> -->
+                            <a href={{ $page.RelPermalink }}><img src="/img/projects/{{ . }}" alt="{{ $page.Title }}" class="projects-image" /></a>
+                            <!-- </a> -->
+                        {{ end }}
+                        </div>
+                    {{ end }}
+                {{ end }}
             {{ end }}
         {{ end }}
     </div>
