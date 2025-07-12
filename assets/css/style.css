@@ -348,7 +348,7 @@ main a:hover {
 }
 
 main ul {
-    margin: 1.5em 0 0.2em 1.2em;
+    margin: 0.8em 0 0.2em 1.2em;
 }
 
 main h1 + ul, main h2 + ul, main h3 + ul {
