@@ -1,18 +1,49 @@
 {{ define "main" }}
 <main>
     <div class="container">
-        <h1>{{ .Title }}</h1>
-        {{ if .Pages }}
-            <ul>
-            {{ range .Pages }}
-                <li>
-                    <a href="{{ .RelPermalink }}">#{{ .Name }}</a>
-                    {{ if .Params.brief }}
-                    <br /><small>{{ .Params.brief }}</small>
-                    {{ end }}
-                </li>
-            {{ end }}
+        {{ if eq .Kind "taxonomy" }}
+            <h1>{{ .Title }}</h1>
+            <ul class="taxonomy-tags">
+                {{ range .Pages }}
+                    <li>
+                        <a href="{{ .RelPermalink }}">#{{ .Name }}</a>
+                    </li>
+                {{ end }}
             </ul>
+        {{ else if eq .Kind "term" }}
+            <h1>#{{ .Name }}</h1>
+            {{ $pages := .Pages.ByDate.Reverse }}
+            {{ $filteredPages := slice }}
+            {{ range $pages }}
+                {{ if and .IsPage (not .Params.hidden) }}
+                    {{ $filteredPages = $filteredPages | append . }}
+                {{ end }}
+            {{ end }}
+            {{ $paginator := .Paginate $filteredPages }}
+            <ul class="taxonomy-posts">
+            {{ range $paginator.Pages }}
+                <section id="{{ .Params.id }}" class="blog-section">
+                    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+                    {{ if .Params.tags }}
+                    <div class="tags">
+                        {{ range .Params.tags }}
+                        <a href="/tags/{{ . | urlize }}">#{{ . }}</a>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+                    <p>{{ .Params.description }}</p>
+                    {{ if and .Params.images }}
+                        {{ $page := . }}
+                        <div class="image-viewer">
+                        {{ range .Params.images }}
+                            <!-- <a href="{{ $page.RelPermalink }}"> -->
+                            <a href={{ $page.RelPermalink }}><img src="/img/blog/{{ . }}" alt="{{ $page.Title }}" class="blog-post-image" /></a>
+                            <!-- </a> -->
+                        {{ end }}
+                        </div>
+                    {{ end }}
+                </section>
+            {{ end }}
         {{ end }}
     </div>
 </main>

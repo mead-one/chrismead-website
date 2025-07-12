@@ -2,7 +2,7 @@
 <main>
     <div class="container">
         <h1>{{ .Title }}</h1>
-        <div class="taxonomy-tags">
+        <div class="tags">
             {{ range .Params.tags }}
             <a href="/tags/{{ . | urlize }}">#{{ . }}</a>
             {{ end }}

@@ -18,17 +18,16 @@ I'm using [Hugo](https://gohugo.io/) to generate the site, and I'm very happy wi
 - Highly flexible templates, massively cutting down on duplicated code and its maintenance
 - Built-in support for [Markdown](https://en.wikipedia.org/wiki/Markdown), which I'm using to write this blog post, allowing:
     - Extensive formatting and styling options without having to write a lot of HTML
-        - Easy **bold**, _italic_, _**bold and italic**_, ~~strikethrough~~, and `inline code`
+        - Easy **\*\*bold\*\***, _\_italic\__, _**\_\*\*bold and italic\*\*\_**_, ~~&#126;&#126;strikethrough&#126;&#126;~~, and &grave;`inline code`&grave;
         - Nested ordered and unordered lists
     - Full code highlighting
     - Easy embedding of images ![Logo](/img/blog/2025-07-11-hello-world/00-logo.png)
-    - Easy embedding of videos
-- Highly configurable behaviour, defined in the [Go programming language](https://go.dev/)
+- Highly configurable behaviour, programmed with the [Go programming language](https://go.dev/)
     - Generation of custom navigation menus
     - Paginated navigation menus for sections containing multiple pages that are updated regularly, such as my [Projects](/projects) section and this blog
     - Customised taxonomies, such as the [Tags](/tags) section, for grouping posts by topic
 
-These benefits come without the drawbacks of running a separate back-end, as the static content is generated at compile-time, meaning the web server only needs to serve static files with no extra processing required once it's on the server.
+These benefits come without the drawbacks of executing back-end software on the server and enable the site to be hosted on simple, cheap packages as the static content is generated at build-time. This means the web server only needs to serve static files with no extra processing required once it's on the server.
 
 Test of inline code formatting: `const message: string = "Hello, World!";`
 

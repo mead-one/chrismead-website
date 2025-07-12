@@ -317,6 +317,18 @@ nav a:hover::after {
     border-color: var(--light-green);
 }
 
+/* TAXONOMIES */
+
+.taxonomy-tags {
+    list-style: none;
+    -webkit-column-count: 3;
+    -moz-column-count: 3;
+    column-count: 3;
+    -webkit-column-gap: 1rem;
+    -moz-column-gap: 1rem;
+    column-gap: 1rem;
+}
+
 /* MAIN */
 
 main {

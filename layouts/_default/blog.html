@@ -14,7 +14,7 @@
                 <section id="{{ .Params.id }}" class="blog-section">
                     <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
                     {{ if .Params.tags }}
-                    <div class="taxonomy-tags">
+                    <div class="tags">
                         {{ range .Params.tags }}
                         <a href="/tags/{{ . | urlize }}">#{{ . }}</a>
                         {{ end }}
