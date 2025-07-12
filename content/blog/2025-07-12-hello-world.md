@@ -26,6 +26,7 @@ I'm using [Hugo](https://gohugo.io/) to generate the site, and I'm very happy wi
     - Generation of custom navigation menus
     - Paginated navigation menus for sections containing multiple pages that are updated regularly, such as my [Projects](/projects) section and this blog
     - Customised taxonomies, such as the [Tags](/tags) section, for grouping posts by topic
+- Automatic cache-busting and minification of assets, such as CSS and transpiled JavaScript files
 
 These benefits come without the drawbacks of executing back-end software on the server and enable the site to be hosted on simple, cheap packages as the static content is generated at build-time. This means the web server only needs to serve static files with no extra processing required once it's on the server.
 
