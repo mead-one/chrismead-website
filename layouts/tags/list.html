@@ -6,7 +6,7 @@
             <ul>
             {{ range .Pages }}
                 <li>
-                    <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                    <a href="{{ .RelPermalink }}">#{{ .Name }}</a>
                     {{ if .Params.brief }}
                     <br /><small>{{ .Params.brief }}</small>
                     {{ end }}
