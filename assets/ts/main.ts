@@ -9,6 +9,7 @@ function initialise() {
     const savedTheme: string | null = localStorage.getItem("theme");
     const systemPrefersDark: boolean = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
+    // Elements to scroll horizontally
     const imageViewers: NodeListOf<HTMLDivElement> = document.querySelectorAll("div.image-viewer");
     const codeBlocks: NodeListOf<HTMLPreElement> = document.querySelectorAll(".highlight>pre");
 

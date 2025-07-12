@@ -8,9 +8,7 @@
             {{ end }}
         </div>
         <small class="post-date">Posted on {{ .Date.Format "2 January 2006" }}</small>
-        <section id="{{ .Params.id }}">
-            {{ .Content }}
-        </section>
+        {{ .Content }}
     </div>
 </main>
 {{ end }}

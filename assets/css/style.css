@@ -327,10 +327,15 @@ main {
 }
 
 main p {
-    margin-bottom: 1em;
+    margin-top: 1em;
+}
+
+main h1 + p, main h2 + p, main h3 + p {
+    margin-top: 0;
 }
 
 main h1, main h2, main h3 {
+    margin-top: 1em;
     color: var(--primary-green);
 }
 
@@ -344,6 +349,10 @@ main a:hover {
 
 main ul {
     margin: 1.5em 0 0.2em 1.2em;
+}
+
+main h1 + ul, main h2 + ul, main h3 + ul {
+    margin-top: 0;
 }
 
 main li > ul {

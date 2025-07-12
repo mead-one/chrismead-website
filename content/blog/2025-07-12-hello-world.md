@@ -41,7 +41,7 @@ import "fmt"
 
 func main() {
     fmt.Println("Hello, World!")
-    fmt.Println("Really, really, really, really, really, really, really, really, really long line.")
+    fmt.Println("Really, really, really, really, really, really, really, really, really long line to test overflow and scrolling.")
 }
 ```
 
