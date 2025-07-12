@@ -12,8 +12,7 @@
         <h1>{{ .Title }}</h1>
         {{ range $paginator.Pages }}
                 <section id="{{ .Params.id }}" class="project-section">
-                    <h2>{{ .Title }}</h2>
-                    <small>Main page at: <a href="{{ .RelPermalink }}">{{ .Title }}</a></small>
+                    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
                     <p>{{ .Params.description }}</p>
                     {{ if and .Params.images }}
                         {{ $page := . }}
