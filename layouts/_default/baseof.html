@@ -7,6 +7,8 @@
     {{ $style := resources.Get "css/style.css" | minify | fingerprint }}
     <link rel="stylesheet" href="{{ $style.Permalink }}">
     <title>{{ .Title }} | ChrisMead.co.uk</title>
+    <link rel="alternate" type="application/rss+xml" href="/projects/index.xml" title="Projects RSS Feed">
+    <link rel="alternate" type="application/rss+xml" href="/blog/index.xml" title="Blog RSS Feed">
 </head>
 <body>
     {{ partial "header.html" . }}

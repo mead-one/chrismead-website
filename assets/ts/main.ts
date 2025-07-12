@@ -11,7 +11,7 @@ function initialise() {
     const systemPrefersDark: boolean = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
     // Project image viewers
-    const projectImageViewers: NodeListOf<HTMLDivElement> = document.querySelectorAll("div.project-image-viewer");
+    const projectImageViewers: NodeListOf<HTMLDivElement> = document.querySelectorAll("div.image-viewer");
 
     // Set initial theme
     if (savedTheme) {

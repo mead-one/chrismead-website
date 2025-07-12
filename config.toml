@@ -3,7 +3,16 @@ languageCode = "en-gb"
 title = "ChrisMead.co.uk"
 # theme = ""
 
+[Author]
+    name = "Christopher Mead"
+    email = "chris@mead.one"
+
 [minify]
   minifyOutput = true
   disableJS = false
   disableCSS = false
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+  taxonomy = ["HTML", "RSS"]
