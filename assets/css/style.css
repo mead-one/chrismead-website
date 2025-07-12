@@ -419,6 +419,8 @@ main a:visited {
     color: var(--link-visited-colour);
 }
 
+/* HOMEPAGE */
+
 .hero {
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
     padding: 4rem 0;
@@ -459,6 +461,38 @@ main a:visited {
     background: var(--medium-green);
     transform: translateY(-2px);
     box-shadow: var(--shadow);
+}
+
+section#skills {
+    text-align: center;
+}
+
+section#skills h2 {
+    margin-bottom: 1rem;
+}
+
+.skills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 4rem;
+}
+
+.skill {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    padding: 1rem;
+    max-width: 20rem;
+    text-align: center;
+}
+
+.skill p {
+    margin: 0;
+}
+
+.skill h3 {
+    margin: 0 0 0.8rem 0;
 }
 
 /* CODE HIGHLIGHTING */
