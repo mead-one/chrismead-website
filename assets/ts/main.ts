@@ -58,6 +58,11 @@ function initialise() {
     // Set scroll direction on image viewers
     for (let imageViewer of imageViewers) {
         imageViewer.addEventListener("wheel", (event: WheelEvent) => {
+            // Scroll normally if contents are not overflowing
+            if (imageViewer.scrollWidth <= imageViewer.clientWidth) {
+                return;
+            }
+
             event.preventDefault();
             const delta: number = event.deltaY;
             imageViewer.scrollLeft += delta;
@@ -67,6 +72,11 @@ function initialise() {
     // Set scroll direction on code blocks
     for (let codeBlock of codeBlocks) {
         codeBlock.addEventListener("wheel", (event: WheelEvent) => {
+            // Scroll normally if contents are not overflowing
+            if (codeBlock.scrollWidth <= codeBlock.clientWidth) {
+                return;
+            }
+
             event.preventDefault();
             const delta: number = event.deltaY;
             codeBlock.scrollLeft += delta;
