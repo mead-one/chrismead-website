@@ -29,24 +29,9 @@ I'm using [Hugo](https://gohugo.io/) to generate the site, and I'm very happy wi
 
 These benefits come without the drawbacks of executing back-end software on the server and enable the site to be hosted on simple, cheap packages as the static content is generated at build-time. This means the web server only needs to serve static files with no extra processing required once it's on the server.
 
-Test of inline code formatting: `const message: string = "Hello, World!";`
-
-Test of _Go_ code highlighting:
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    fmt.Println("Hello, World!")
-    fmt.Println("Really, really, really, really, really, really, really, really, really long line to test overflow and scrolling.")
-}
-```
-
 ## TypeScript and Vite
 
-Although I strongly believe that web content should be freely accessible without having to run JavaScript code wherever possible, and have built this website with that ethos in mind, I'm also using [TypeScript](https://www.typescriptlang.org/) to make small, optional enhancements throughout the website. I'm also using it to power my interactive demos in the [Projects](/projects/) section of my website, such as my [brick arch drawing tool](projects/brick-arch/).
+Although I strongly believe that web content should be freely accessible without having to run JavaScript code wherever possible, and have built this website with that ethos in mind, I'm also using [TypeScript](https://www.typescriptlang.org/) to make small, optional enhancements throughout the website. I'm also using it to power my interactive demos in the [Projects](/projects/) section of my website, such as my [brick arch drawing tool](/projects/brickarch/).
 
 I'm using [Vite](https://vitejs.dev/) to bundle the TypeScript code into a single JavaScript file, which is then included in the HTML of the page, giving me the freedom to split the code into logically organised files for readability and maintainability.
 
@@ -54,4 +39,4 @@ I'm using [Vite](https://vitejs.dev/) to bundle the TypeScript code into a singl
 
 Regularly creating written content like blog posts is a whole new world to me, so expect to see my writing skills and the way I organise my content improve over time as I write about my projects, learnings, and interests on this blog. I expect I'll also need to tweak things as the volume of content grows to ensure smooth navigation around the website.
 
-Stick around if you want to see more of my work, or if you're interested in my thoughts on software development, AI, &amp; robotics by subscribing to the RSS feed of the [blog](/blog/index.xml) or [projects](/blog/index.xml) sections, or connecting with me on [LinkedIn](https://www.linkedin.com/in/christopher-mead-4765bb182).
+Stick around if you want to see more of my work, or if you're interested in my thoughts on software development, AI, &amp; robotics by subscribing to the RSS feed of the [blog](/blog/index.xml?format=rss) or [projects](/blog/index.xml) sections, or connecting with me on [LinkedIn](https://www.linkedin.com/in/christopher-mead-4765bb182).
