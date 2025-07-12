@@ -3,15 +3,14 @@ window.addEventListener("DOMContentLoaded", initialise);
 function initialise() {
     // Theme toggle
     const themeToggle: HTMLButtonElement | null = document.querySelector("button.theme-toggle");
-    const themeIcon = document.getElementById("themeIcon");
-    const body: HTMLBodyElement = document.body;
+    const body: HTMLBodyElement = document.body as HTMLBodyElement;
 
     // Check for saved theme preference or default to system preference
     const savedTheme: string | null = localStorage.getItem("theme");
     const systemPrefersDark: boolean = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-    // Project image viewers
-    const projectImageViewers: NodeListOf<HTMLDivElement> = document.querySelectorAll("div.image-viewer");
+    const imageViewers: NodeListOf<HTMLDivElement> = document.querySelectorAll("div.image-viewer");
+    const codeBlocks: NodeListOf<HTMLPreElement> = document.querySelectorAll(".highlight>pre");
 
     // Set initial theme
     if (savedTheme) {
@@ -26,17 +25,23 @@ function initialise() {
     }
 
     // Theme toggle event listener
-    themeToggle.addEventListener("click", () => {
-        const currentTheme: string = body.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    if (themeToggle) {
+        themeToggle.addEventListener("click", () => {
+            const currentTheme: string | null = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-        body.setAttribute('data-theme', newTheme);
-        localStorage.setItem("theme", newTheme);
-        updateThemeIcon(newTheme);
-    });
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem("theme", newTheme);
+            updateThemeIcon(newTheme);
+        });
+    }
 
     // Update theme icon
     function updateThemeIcon(theme: string) {
+        const themeIcon = document.getElementById("themeIcon");
+        if (!themeIcon) {
+            return;
+        }
         themeIcon.textContent = theme === 'dark' ? '🌙' : '☀️';
     }
 
@@ -49,26 +54,21 @@ function initialise() {
         }
     });
 
-    // Smooth scrolling for navigation links
-    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-        anchor.addEventListener('click', (e) => {
-            e.preventDefault();
-            const target = document.querySelector(anchor.getAttribute('href')) as HTMLElement;
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start',
-                    inline: 'nearest'
-                });
-            }
+    // Set scroll direction on image viewers
+    for (let imageViewer of imageViewers) {
+        imageViewer.addEventListener("wheel", (event: WheelEvent) => {
+            event.preventDefault();
+            const delta: number = event.deltaY;
+            imageViewer.scrollLeft += delta;
         });
-    });
+    }
 
-    // Set scroll direction on project image viewers
-    for (let projectImageViewer of projectImageViewers) {
-        projectImageViewer.addEventListener("wheel", (e: WheelEvent) => {
-            e.preventDefault();
-            projectImageViewer.scrollLeft += e.deltaY;
+    // Set scroll direction on code blocks
+    for (let codeBlock of codeBlocks) {
+        codeBlock.addEventListener("wheel", (event: WheelEvent) => {
+            event.preventDefault();
+            const delta: number = event.deltaY;
+            codeBlock.scrollLeft += delta;
         });
     }
 }

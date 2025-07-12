@@ -396,6 +396,12 @@ main a:visited {
     box-shadow: var(--shadow);
 }
 
+/* CODE HIGHLIGHTING */
+
+.highlight > pre {
+    overflow-x: auto;
+}
+
 /* FOOTER */
 
 footer {
