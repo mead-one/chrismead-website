@@ -408,6 +408,7 @@ main a:visited {
 /* CODE HIGHLIGHTING */
 
 .highlight > pre {
+    padding: 1rem;
     overflow-x: auto;
 }
 
