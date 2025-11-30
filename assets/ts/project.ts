@@ -37,7 +37,7 @@ export abstract class Project {
         const titlebarIcon = document.createElement("img");
         titlebarIcon.classList.add("project-window-icon");
         titlebarIcon.height = 18;
-        titlebarIcon.setAttribute("src", `/img/${this.appId}-icon.png`);
+        titlebarIcon.setAttribute("src", `${this.appId}-icon.png`);
         titlebar.appendChild(titlebarIcon);
 
         // "Window title"
@@ -90,7 +90,7 @@ export abstract class Project {
         titlebarControls.appendChild(titlebarMinimiseLbl);
 
         const titlebarMinimiseImg = document.createElement("img");
-        titlebarMinimiseImg.src = "/img/minimise-btn.png";
+        titlebarMinimiseImg.src = "minimise-btn.png";
         titlebarMinimiseImg.width = 16;
         titlebarMinimiseImg.height = 16;
         titlebarMinimiseLbl.appendChild(titlebarMinimiseImg);
@@ -132,14 +132,14 @@ export abstract class Project {
         titlebarControls.appendChild(titlebarMaximiseLbl);
 
         const titlebarMaximiseImg = document.createElement("img");
-        titlebarMaximiseImg.src = "/img/maximise-btn.png";
+        titlebarMaximiseImg.src = "maximise-btn.png";
         titlebarMaximiseImg.width = 16;
         titlebarMaximiseImg.height = 16;
         titlebarMaximiseLbl.appendChild(titlebarMaximiseImg);
 
         // Close button
         const titlebarCloseImg = document.createElement("img");
-        titlebarCloseImg.src = "/img/close-btn.png";
+        titlebarCloseImg.src = "close-btn.png";
         titlebarCloseImg.classList.add("project-window-close");
         titlebarCloseImg.width = 16;
         titlebarCloseImg.height = 16;

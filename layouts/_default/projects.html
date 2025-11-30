@@ -26,7 +26,7 @@
                         <div class="image-viewer">
                         {{ range .Params.images }}
                             <!-- <a href="{{ $page.RelPermalink }}"> -->
-                            <a href={{ $page.RelPermalink }}><img src="/img/projects/{{ . }}" alt="{{ $page.Title }}" class="projects-image" /></a>
+                <a href={{ $page.RelPermalink }}><img src="{{ $page.RelPermalink }}{{ . }}" alt="{{ $page.Title }}" class="projects-image" /></a>
                             <!-- </a> -->
                         {{ end }}
                         </div>
